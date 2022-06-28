@@ -1,4 +1,6 @@
-use stellar_contract_sdk::{contracttype, ArrayBinary, Env, EnvVal, IntoEnvVal, RawVal, Vec};
+use stellar_contract_sdk::{
+    contracttype, ArrayBinary, ConversionError, Env, EnvVal, IntoEnvVal, RawVal, Vec,
+};
 
 pub type U256 = ArrayBinary<32>;
 pub type U512 = ArrayBinary<64>;
