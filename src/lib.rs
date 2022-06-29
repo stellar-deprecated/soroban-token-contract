@@ -14,6 +14,7 @@ use allowance::{read_allowance, spend_allowance, write_allowance};
 use balance::{read_balance, receive_balance, spend_balance};
 use balance::{read_state, write_state};
 use cryptography::{check_auth, Domain};
+use nonce::read_nonce;
 use public_types::{Authorization, Identifier, KeyedAuthorization};
 use stellar_contract_sdk::{contractfn, Env, IntoEnvVal};
 
@@ -23,6 +24,11 @@ pub fn initialize(e: Env, admin: Identifier) {
         panic!()
     }
     write_administrator(&e, admin);
+}
+
+#[contractfn]
+pub fn nonce(e: Env, id: Identifier) -> u64 {
+    read_nonce(&e, id)
 }
 
 #[contractfn]
