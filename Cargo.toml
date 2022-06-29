@@ -12,4 +12,8 @@ crate-type = ["cdylib", "rlib"]
 stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "1bf6da3" }
 
 [dev_dependencies]
+ed25519-dalek = "1.0.1"
+rand = "0.7.3"
+sha2 = "0.10.2"
 stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "1bf6da3", features = ["testutils"] }
+stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "0b8fe26", features = ["next", "std"] }
