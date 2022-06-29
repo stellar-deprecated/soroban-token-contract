@@ -30,13 +30,11 @@ fn check_ed25519_auth(
     };
     let msg_bin = e.compute_hash_sha256(e.serialize_to_binary(Message::V0(msg)));
 
-    if !e.verify_sig_ed25519(
+    e.verify_sig_ed25519(
         auth.authorization.signature.into(),
         auth.public_key.into(),
         msg_bin,
-    ) {
-        panic!()
-    }
+    );
 }
 
 fn check_account_auth(
@@ -70,13 +68,11 @@ fn check_account_auth(
             }
         }
 
-        if !e.verify_sig_ed25519(
+        e.verify_sig_ed25519(
             sig.signature.into(),
             sig.public_key.clone().into(),
             msg_bin.clone(),
-        ) {
-            panic!()
-        }
+        );
         // TODO: Check for overflow
         weight += e.account_get_signer_weight(acc_id.clone(), sig.public_key.clone().into());
 

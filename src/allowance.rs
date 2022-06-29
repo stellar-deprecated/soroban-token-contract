@@ -20,5 +20,5 @@ pub fn spend_allowance(e: &Env, from: Identifier, spender: Identifier, amount: u
     if allowance < amount {
         panic!();
     }
-    write_allowance(e, from, spender, amount);
+    write_allowance(e, from, spender, allowance - amount);
 }
