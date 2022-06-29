@@ -142,6 +142,11 @@ pub fn set_admin(e: Env, admin: Authorization, new_admin: Identifier) {
 #[contractfn]
 pub fn unfreeze(e: Env, admin: Authorization, id: Identifier) {
     let auth = to_administrator_authorization(&e, admin);
-    check_auth(&e, auth, Domain::Unfreeze, id.clone().into_env_val(&e));
+    check_auth(
+        &e,
+        auth,
+        Domain::Unfreeze,
+        (id.clone(), ()).into_env_val(&e),
+    );
     write_state(&e, id, false);
 }
