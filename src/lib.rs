@@ -9,13 +9,21 @@ mod public_types;
 mod storage_types;
 mod test;
 
-use admin::{to_administrator_authorization, write_administrator};
+use admin::{has_administrator, to_administrator_authorization, write_administrator};
 use allowance::{read_allowance, spend_allowance, write_allowance};
 use balance::{read_balance, receive_balance, spend_balance};
 use balance::{read_state, write_state};
 use cryptography::{check_auth, Domain};
 use public_types::{Authorization, Identifier, KeyedAuthorization};
 use stellar_contract_sdk::{contractfn, Env, IntoEnvVal};
+
+#[contractfn]
+pub fn initialize(e: Env, admin: Identifier) {
+    if has_administrator(&e) {
+        panic!()
+    }
+    write_administrator(&e, admin);
+}
 
 #[contractfn]
 pub fn allowance(e: Env, from: Identifier, spender: Identifier) -> u64 {

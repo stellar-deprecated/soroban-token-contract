@@ -5,6 +5,11 @@ use crate::public_types::{
 use crate::storage_types::DataKey;
 use stellar_contract_sdk::Env;
 
+pub fn has_administrator(e: &Env) -> bool {
+    let key = DataKey::Administrator;
+    e.has_contract_data(key)
+}
+
 fn read_administrator(e: &Env) -> Identifier {
     let key = DataKey::Administrator;
     e.get_contract_data(key)
