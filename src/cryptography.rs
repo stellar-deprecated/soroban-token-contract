@@ -30,11 +30,7 @@ fn check_ed25519_auth(
     };
     let msg_bin = e.compute_hash_sha256(e.serialize_to_binary(Message::V0(msg)));
 
-    e.verify_sig_ed25519(
-        auth.auth.signature.into(),
-        auth.public_key.into(),
-        msg_bin,
-    );
+    e.verify_sig_ed25519(auth.auth.signature.into(), auth.public_key.into(), msg_bin);
 }
 
 fn check_account_auth(

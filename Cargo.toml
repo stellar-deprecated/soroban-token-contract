@@ -13,6 +13,7 @@ stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-s
 
 [dev_dependencies]
 ed25519-dalek = "1.0.1"
+num-bigint = "0.4"
 rand = "0.7.3"
 sha2 = "0.10.2"
 stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "46f5082", features = ["testutils"] }

@@ -56,7 +56,7 @@ pub fn xfer(e: Env, from: KeyedAuthorization, to: Identifier, amount: BigInt) {
         Domain::Transfer,
         (to.clone(), amount.clone()).into_env_val(&e),
     );
-    spend_balance(&e, from_id, amount);
+    spend_balance(&e, from_id, amount.clone());
     receive_balance(&e, to, amount);
 }
 
@@ -75,8 +75,8 @@ pub fn xfer_from(
         Domain::TransferFrom,
         (from.clone(), to.clone(), amount.clone()).into_env_val(&e),
     );
-    spend_allowance(&e, from.clone(), spender_id, amount);
-    spend_balance(&e, from, amount);
+    spend_allowance(&e, from.clone(), spender_id, amount.clone());
+    spend_balance(&e, from, amount.clone());
     receive_balance(&e, to, amount);
 }
 
