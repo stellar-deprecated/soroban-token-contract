@@ -31,7 +31,7 @@ fn check_ed25519_auth(
     let msg_bin = e.compute_hash_sha256(e.serialize_to_binary(Message::V0(msg)));
 
     e.verify_sig_ed25519(
-        auth.authorization.signature.into(),
+        auth.auth.signature.into(),
         auth.public_key.into(),
         msg_bin,
     );
@@ -56,7 +56,7 @@ fn check_account_auth(
     let threshold = e.account_get_medium_threshold(acc_id.clone());
     let mut weight = 0u32;
 
-    let sigs = &auth.authorization.signatures;
+    let sigs = &auth.auth.signatures;
     let mut prev_pk: Option<U256> = None;
     for i in 0..sigs.len() {
         let sig = sigs.get(i);
