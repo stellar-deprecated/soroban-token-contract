@@ -1,31 +1,31 @@
 use crate::public_types::Identifier;
 use crate::storage_types::DataKey;
-use stellar_contract_sdk::Env;
+use stellar_contract_sdk::{BigInt, Env};
 
-pub fn read_balance(e: &Env, id: Identifier) -> u64 {
+pub fn read_balance(e: &Env, id: Identifier) -> BigInt {
     let key = DataKey::Balance(id);
     if e.has_contract_data(key.clone()) {
         e.get_contract_data(key)
     } else {
-        0
+        BigInt::from_u32(e, 0)
     }
 }
 
-fn write_balance(e: &Env, id: Identifier, amount: u64) {
+fn write_balance(e: &Env, id: Identifier, amount: BigInt) {
     let key = DataKey::Balance(id);
     e.put_contract_data(key, amount);
 }
 
-pub fn receive_balance(e: &Env, id: Identifier, amount: u64) {
+pub fn receive_balance(e: &Env, id: Identifier, amount: BigInt) {
     let balance = read_balance(e, id.clone());
     let is_frozen = read_state(e, id.clone());
-    if is_frozen || u64::MAX - balance < amount {
+    if is_frozen {
         panic!();
     }
     write_balance(e, id, balance + amount);
 }
 
-pub fn spend_balance(e: &Env, id: Identifier, amount: u64) {
+pub fn spend_balance(e: &Env, id: Identifier, amount: BigInt) {
     let balance = read_balance(e, id.clone());
     let is_frozen = read_state(e, id.clone());
     if is_frozen || balance < amount {

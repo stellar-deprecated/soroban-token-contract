@@ -11,7 +11,7 @@ use crate::public_types::{
 use ed25519_dalek::{Keypair, Signer};
 use rand::thread_rng;
 use stellar_contract_sdk::{Binary, Env, FixedLengthBinary, VariableLengthBinary};
-use stellar_xdr::{ScMap, ScMapEntry, ScObject, ScStatic, ScVal, ScVec, WriteXdr};
+use stellar_xdr::{ScBigInt, ScMap, ScMapEntry, ScObject, ScStatic, ScVal, ScVec, WriteXdr};
 
 fn str_to_symbol(s: &str) -> ScVal {
     use std::vec::Vec;
@@ -31,8 +31,36 @@ fn binary_from_keypair(e: &Env, kp: &Keypair) -> U256 {
     bin.try_into().unwrap()
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct ExternalBigInt(num_bigint::BigInt);
+
+impl<T> From<T> for ExternalBigInt
+where
+    num_bigint::BigInt: From<T>,
+{
+    fn from(x: T) -> Self {
+        ExternalBigInt(x.into())
+    }
+}
+
+impl From<ExternalBigInt> for ScVal {
+    fn from(ebi: ExternalBigInt) -> Self {
+        use num_bigint::Sign;
+        let scbi = match ebi.0.to_bytes_be() {
+            (Sign::NoSign, _) => ScBigInt::Zero,
+            (Sign::Plus, data) => ScBigInt::Positive(data.try_into().unwrap()),
+            (Sign::Minus, data) => ScBigInt::Negative(data.try_into().unwrap()),
+        };
+        ScVal::Object(Some(ScObject::BigInt(scbi)))
+    }
+}
+
+fn bigint_from_external(e: &Env, ebi: &ExternalBigInt) -> stellar_contract_sdk::BigInt {
+    stellar_contract_sdk::BigInt::from_u64(e, (&ebi.0).try_into().unwrap())
+}
+
 struct ExternalMessageV0 {
-    nonce: u64,
+    nonce: ExternalBigInt,
     domain: Domain,
     parameters: ScVec,
 }
@@ -46,7 +74,7 @@ impl From<ExternalMessageV0> for ScVal {
         });
         msg_vec.push(ScMapEntry {
             key: str_to_symbol("nonce"),
-            val: ScVal::Object(Some(ScObject::U64(msg.nonce))),
+            val: msg.nonce.into(),
         });
         msg_vec.push(ScMapEntry {
             key: str_to_symbol("parameters"),
@@ -92,75 +120,102 @@ fn do_initialize(e: &Env, admin: &Identifier) {
     contract::initialize(e.clone(), admin.clone());
 }
 
-fn do_approve(e: &Env, kp: &Keypair, spender: &Identifier, amount: u64) {
+fn do_nonce(e: &Env, id: &Identifier) -> ExternalBigInt {
+    let nonce: u64 = contract::nonce(e.clone(), id.clone()).try_into().unwrap();
+    ExternalBigInt(num_bigint::BigInt::from(nonce))
+}
+
+fn do_allowance(e: &Env, from: &Identifier, spender: &Identifier) -> ExternalBigInt {
+    let allowance: u64 = contract::allowance(e.clone(), from.clone(), spender.clone())
+        .try_into()
+        .unwrap();
+    ExternalBigInt(num_bigint::BigInt::from(allowance))
+}
+
+fn do_approve(e: &Env, kp: &Keypair, spender: &Identifier, amount: ExternalBigInt) {
     let from_bin = binary_from_keypair(e, kp);
     let from_id = Identifier::Ed25519(from_bin.clone());
 
-    let nonce = contract::nonce(e.clone(), from_id);
+    let nonce = do_nonce(e, &from_id);
     let msg = ExternalMessageV0 {
-        nonce,
+        nonce: nonce.clone(),
         domain: Domain::Approve,
         parameters: ScVec(
-            vec![
-                spender.clone().into(),
-                ScVal::Object(Some(ScObject::U64(amount))),
-            ]
-            .try_into()
-            .unwrap(),
+            vec![spender.clone().into(), amount.clone().into()]
+                .try_into()
+                .unwrap(),
         ),
     };
 
     let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
         public_key: from_bin,
         auth: Ed25519Authorization {
-            nonce,
+            nonce: bigint_from_external(e, &nonce),
             signature: sign(e, kp, msg),
         },
     });
-    contract::approve(e.clone(), auth, spender.clone(), amount);
+    contract::approve(
+        e.clone(),
+        auth,
+        spender.clone(),
+        bigint_from_external(e, &amount),
+    );
 }
 
-fn do_transfer(e: &Env, kp: &Keypair, to: &Identifier, amount: u64) {
+fn do_balance(e: &Env, id: &Identifier) -> ExternalBigInt {
+    let balance: u64 = contract::balance(e.clone(), id.clone()).try_into().unwrap();
+    ExternalBigInt(num_bigint::BigInt::from(balance))
+}
+
+fn do_transfer(e: &Env, kp: &Keypair, to: &Identifier, amount: ExternalBigInt) {
     let from_bin = binary_from_keypair(e, kp);
     let from_id = Identifier::Ed25519(from_bin.clone());
 
-    let nonce = contract::nonce(e.clone(), from_id);
+    let nonce = do_nonce(e, &from_id);
     let msg = ExternalMessageV0 {
-        nonce,
+        nonce: nonce.clone(),
         domain: Domain::Transfer,
         parameters: ScVec(
-            vec![
-                to.clone().into(),
-                ScVal::Object(Some(ScObject::U64(amount))),
-            ]
-            .try_into()
-            .unwrap(),
+            vec![to.clone().into(), amount.clone().into()]
+                .try_into()
+                .unwrap(),
         ),
     };
 
     let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
         public_key: from_bin,
         auth: Ed25519Authorization {
-            nonce,
+            nonce: bigint_from_external(e, &nonce),
             signature: sign(e, kp, msg),
         },
     });
-    contract::xfer(e.clone(), auth, to.clone(), amount);
+    contract::xfer(
+        e.clone(),
+        auth,
+        to.clone(),
+        bigint_from_external(e, &amount),
+    );
 }
 
-fn do_transfer_from(e: &Env, kp: &Keypair, from: &Identifier, to: &Identifier, amount: u64) {
+fn do_transfer_from(
+    e: &Env,
+    kp: &Keypair,
+    from: &Identifier,
+    to: &Identifier,
+    amount: ExternalBigInt,
+) {
     let spender_bin = binary_from_keypair(e, kp);
     let spender_id = Identifier::Ed25519(spender_bin.clone());
 
-    let nonce = contract::nonce(e.clone(), spender_id);
+    let nonce = do_nonce(e, &spender_id);
     let msg = ExternalMessageV0 {
-        nonce,
+        nonce: nonce.clone(),
         domain: Domain::TransferFrom,
         parameters: ScVec(
             vec![
                 from.clone().into(),
                 to.clone().into(),
-                ScVal::Object(Some(ScObject::U64(amount))),
+                amount.clone().into(),
             ]
             .try_into()
             .unwrap(),
@@ -170,43 +225,51 @@ fn do_transfer_from(e: &Env, kp: &Keypair, from: &Identifier, to: &Identifier, a
     let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
         public_key: spender_bin,
         auth: Ed25519Authorization {
-            nonce,
+            nonce: bigint_from_external(e, &nonce),
             signature: sign(e, kp, msg),
         },
     });
-    contract::xfer_from(e.clone(), auth, from.clone(), to.clone(), amount);
+    contract::xfer_from(
+        e.clone(),
+        auth,
+        from.clone(),
+        to.clone(),
+        bigint_from_external(e, &amount),
+    );
 }
 
-fn do_burn(e: &Env, kp: &Keypair, from: &Identifier, amount: u64) {
+fn do_burn(e: &Env, kp: &Keypair, from: &Identifier, amount: ExternalBigInt) {
     let admin = Identifier::Ed25519(binary_from_keypair(e, kp));
 
-    let nonce = contract::nonce(e.clone(), admin);
+    let nonce = do_nonce(e, &admin);
     let msg = ExternalMessageV0 {
-        nonce,
+        nonce: nonce.clone(),
         domain: Domain::Burn,
         parameters: ScVec(
-            vec![
-                from.clone().into(),
-                ScVal::Object(Some(ScObject::U64(amount))),
-            ]
-            .try_into()
-            .unwrap(),
+            vec![from.clone().into(), amount.clone().into()]
+                .try_into()
+                .unwrap(),
         ),
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
-        nonce,
+        nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
-    contract::burn(e.clone(), auth, from.clone(), amount);
+    contract::burn(
+        e.clone(),
+        auth,
+        from.clone(),
+        bigint_from_external(e, &amount),
+    );
 }
 
 fn do_freeze(e: &Env, kp: &Keypair, id: &Identifier) {
     let admin = Identifier::Ed25519(binary_from_keypair(e, kp));
 
-    let nonce = contract::nonce(e.clone(), admin);
+    let nonce = do_nonce(e, &admin);
     let msg = ExternalMessageV0 {
-        nonce,
+        nonce: nonce.clone(),
         domain: Domain::Freeze,
         parameters: ScVec(
             vec![id.clone().into(), ScVal::Static(ScStatic::Void)]
@@ -216,42 +279,44 @@ fn do_freeze(e: &Env, kp: &Keypair, id: &Identifier) {
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
-        nonce,
+        nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
     contract::freeze(e.clone(), auth, id.clone());
 }
 
-fn do_mint(e: &Env, kp: &Keypair, to: &Identifier, amount: u64) {
+fn do_mint(e: &Env, kp: &Keypair, to: &Identifier, amount: ExternalBigInt) {
     let admin = Identifier::Ed25519(binary_from_keypair(e, kp));
 
-    let nonce = contract::nonce(e.clone(), admin);
+    let nonce = do_nonce(e, &admin);
     let msg = ExternalMessageV0 {
-        nonce,
+        nonce: nonce.clone(),
         domain: Domain::Mint,
         parameters: ScVec(
-            vec![
-                to.clone().into(),
-                ScVal::Object(Some(ScObject::U64(amount))),
-            ]
-            .try_into()
-            .unwrap(),
+            vec![to.clone().into(), amount.clone().into()]
+                .try_into()
+                .unwrap(),
         ),
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
-        nonce,
+        nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
-    contract::mint(e.clone(), auth, to.clone(), amount);
+    contract::mint(
+        e.clone(),
+        auth,
+        to.clone(),
+        bigint_from_external(e, &amount),
+    );
 }
 
 fn do_set_admin(e: &Env, kp: &Keypair, new_admin: &Identifier) {
     let admin = Identifier::Ed25519(binary_from_keypair(e, kp));
 
-    let nonce = contract::nonce(e.clone(), admin);
+    let nonce = do_nonce(e, &admin);
     let msg = ExternalMessageV0 {
-        nonce,
+        nonce: nonce.clone(),
         domain: Domain::SetAdministrator,
         parameters: ScVec(
             vec![new_admin.clone().into(), ScVal::Static(ScStatic::Void)]
@@ -261,7 +326,7 @@ fn do_set_admin(e: &Env, kp: &Keypair, new_admin: &Identifier) {
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
-        nonce,
+        nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
     contract::set_admin(e.clone(), auth, new_admin.clone());
@@ -270,9 +335,9 @@ fn do_set_admin(e: &Env, kp: &Keypair, new_admin: &Identifier) {
 fn do_unfreeze(e: &Env, kp: &Keypair, id: &Identifier) {
     let admin = Identifier::Ed25519(binary_from_keypair(e, kp));
 
-    let nonce = contract::nonce(e.clone(), admin);
+    let nonce = do_nonce(e, &admin);
     let msg = ExternalMessageV0 {
-        nonce,
+        nonce: nonce.clone(),
         domain: Domain::Unfreeze,
         parameters: ScVec(
             vec![id.clone().into(), ScVal::Static(ScStatic::Void)]
@@ -282,7 +347,7 @@ fn do_unfreeze(e: &Env, kp: &Keypair, id: &Identifier) {
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
-        nonce,
+        nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
     contract::unfreeze(e.clone(), auth, id.clone());
@@ -328,42 +393,42 @@ fn test_every_function() {
 
     do_initialize(&e, &admin_id1);
 
-    do_mint(&e, &admin_kp1, &id1, 1000);
-    assert_eq!(contract::balance(e.clone(), id1.clone()), 1000);
-    assert_eq!(contract::nonce(e.clone(), admin_id1.clone()), 1);
+    do_mint(&e, &admin_kp1, &id1, 1000u64.into());
+    assert_eq!(do_balance(&e, &id1), 1000u64.into());
+    assert_eq!(do_nonce(&e, &admin_id1), 1u64.into());
 
-    do_approve(&e, &kp2, &id3, 500);
-    assert_eq!(contract::allowance(e.clone(), id2.clone(), id3.clone()), 500);
-    assert_eq!(contract::nonce(e.clone(), id2.clone()), 1);
+    do_approve(&e, &kp2, &id3, 500u64.into());
+    assert_eq!(do_allowance(&e, &id2, &id3), 500u64.into());
+    assert_eq!(do_nonce(&e, &id2), 1u64.into());
 
-    do_transfer(&e, &kp1, &id2, 600);
-    assert_eq!(contract::balance(e.clone(), id1.clone()), 400);
-    assert_eq!(contract::balance(e.clone(), id2.clone()), 600);
-    assert_eq!(contract::nonce(e.clone(), id1.clone()), 1);
+    do_transfer(&e, &kp1, &id2, 600u64.into());
+    assert_eq!(do_balance(&e, &id1), 400u64.into());
+    assert_eq!(do_balance(&e, &id2), 600u64.into());
+    assert_eq!(do_nonce(&e, &id1), 1u64.into());
 
-    do_transfer_from(&e, &kp3, &id2, &id1, 400);
-    assert_eq!(contract::allowance(e.clone(), id2.clone(), id3.clone()), 100);
-    assert_eq!(contract::balance(e.clone(), id1.clone()), 800);
-    assert_eq!(contract::balance(e.clone(), id2.clone()), 200);
-    assert_eq!(contract::nonce(e.clone(), id3.clone()), 1);
+    do_transfer_from(&e, &kp3, &id2, &id1, 400u64.into());
+    assert_eq!(do_allowance(&e, &id2, &id3), 100u64.into());
+    assert_eq!(do_balance(&e, &id1), 800u64.into());
+    assert_eq!(do_balance(&e, &id2), 200u64.into());
+    assert_eq!(do_nonce(&e, &id3), 1u64.into());
 
-    do_transfer(&e, &kp1, &id3, 300);
-    assert_eq!(contract::balance(e.clone(), id1.clone()), 500);
-    assert_eq!(contract::balance(e.clone(), id3.clone()), 300);
-    assert_eq!(contract::nonce(e.clone(), id1.clone()), 2);
+    do_transfer(&e, &kp1, &id3, 300u64.into());
+    assert_eq!(do_balance(&e, &id1), 500u64.into());
+    assert_eq!(do_balance(&e, &id3), 300u64.into());
+    assert_eq!(do_nonce(&e, &id1), 2u64.into());
 
     do_set_admin(&e, &admin_kp1, &admin_id2);
-    assert_eq!(contract::nonce(e.clone(), admin_id1.clone()), 2);
+    assert_eq!(do_nonce(&e, &admin_id1), 2u64.into());
 
     do_freeze(&e, &admin_kp2, &id2);
     assert_eq!(contract::is_frozen(e.clone(), id2.clone()), true);
-    assert_eq!(contract::nonce(e.clone(), admin_id2.clone()), 1);
+    assert_eq!(do_nonce(&e, &admin_id2), 1u64.into());
 
     do_unfreeze(&e, &admin_kp2, &id3);
     assert_eq!(contract::is_frozen(e.clone(), id3.clone()), false);
-    assert_eq!(contract::nonce(e.clone(), admin_id2.clone()), 2);
+    assert_eq!(do_nonce(&e, &admin_id2), 2u64.into());
 
-    do_burn(&e, &admin_kp2, &id3, 100);
-    assert_eq!(contract::balance(e.clone(), id3.clone()), 200);
-    assert_eq!(contract::nonce(e.clone(), admin_id2.clone()), 3);
+    do_burn(&e, &admin_kp2, &id3, 100u64.into());
+    assert_eq!(do_balance(&e, &id3), 200u64.into());
+    assert_eq!(do_nonce(&e, &admin_id2), 3u64.into());
 }

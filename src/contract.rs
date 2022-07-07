@@ -5,7 +5,7 @@ use crate::balance::{read_state, write_state};
 use crate::cryptography::{check_auth, Domain};
 use crate::nonce::read_nonce;
 use crate::public_types::{Authorization, Identifier, KeyedAuthorization};
-use stellar_contract_sdk::{contractfn, Env, IntoEnvVal};
+use stellar_contract_sdk::{contractfn, BigInt, Env, IntoEnvVal};
 
 #[contractfn]
 pub fn initialize(e: Env, admin: Identifier) {
@@ -16,17 +16,17 @@ pub fn initialize(e: Env, admin: Identifier) {
 }
 
 #[contractfn]
-pub fn nonce(e: Env, id: Identifier) -> u64 {
+pub fn nonce(e: Env, id: Identifier) -> BigInt {
     read_nonce(&e, id)
 }
 
 #[contractfn]
-pub fn allowance(e: Env, from: Identifier, spender: Identifier) -> u64 {
+pub fn allowance(e: Env, from: Identifier, spender: Identifier) -> BigInt {
     read_allowance(&e, from, spender)
 }
 
 #[contractfn]
-pub fn approve(e: Env, from: KeyedAuthorization, spender: Identifier, amount: u64) {
+pub fn approve(e: Env, from: KeyedAuthorization, spender: Identifier, amount: BigInt) {
     let from_id = from.get_identifier(&e);
     check_auth(
         &e,
@@ -38,7 +38,7 @@ pub fn approve(e: Env, from: KeyedAuthorization, spender: Identifier, amount: u6
 }
 
 #[contractfn]
-pub fn balance(e: Env, id: Identifier) -> u64 {
+pub fn balance(e: Env, id: Identifier) -> BigInt {
     read_balance(&e, id)
 }
 
@@ -48,7 +48,7 @@ pub fn is_frozen(e: Env, id: Identifier) -> bool {
 }
 
 #[contractfn]
-pub fn xfer(e: Env, from: KeyedAuthorization, to: Identifier, amount: u64) {
+pub fn xfer(e: Env, from: KeyedAuthorization, to: Identifier, amount: BigInt) {
     let from_id = from.get_identifier(&e);
     check_auth(
         &e,
@@ -56,7 +56,7 @@ pub fn xfer(e: Env, from: KeyedAuthorization, to: Identifier, amount: u64) {
         Domain::Transfer,
         (to.clone(), amount.clone()).into_env_val(&e),
     );
-    spend_balance(&e, from_id, amount);
+    spend_balance(&e, from_id, amount.clone());
     receive_balance(&e, to, amount);
 }
 
@@ -66,7 +66,7 @@ pub fn xfer_from(
     spender: KeyedAuthorization,
     from: Identifier,
     to: Identifier,
-    amount: u64,
+    amount: BigInt,
 ) {
     let spender_id = spender.get_identifier(&e);
     check_auth(
@@ -75,13 +75,13 @@ pub fn xfer_from(
         Domain::TransferFrom,
         (from.clone(), to.clone(), amount.clone()).into_env_val(&e),
     );
-    spend_allowance(&e, from.clone(), spender_id, amount);
-    spend_balance(&e, from, amount);
+    spend_allowance(&e, from.clone(), spender_id, amount.clone());
+    spend_balance(&e, from, amount.clone());
     receive_balance(&e, to, amount);
 }
 
 #[contractfn]
-pub fn burn(e: Env, admin: Authorization, from: Identifier, amount: u64) {
+pub fn burn(e: Env, admin: Authorization, from: Identifier, amount: BigInt) {
     let auth = to_administrator_authorization(&e, admin);
     check_auth(
         &e,
@@ -105,7 +105,7 @@ pub fn freeze(e: Env, admin: Authorization, id: Identifier) {
 }
 
 #[contractfn]
-pub fn mint(e: Env, admin: Authorization, to: Identifier, amount: u64) {
+pub fn mint(e: Env, admin: Authorization, to: Identifier, amount: BigInt) {
     let auth = to_administrator_authorization(&e, admin);
     check_auth(
         &e,

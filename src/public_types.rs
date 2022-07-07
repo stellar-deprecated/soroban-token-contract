@@ -1,5 +1,5 @@
 use stellar_contract_sdk::{
-    contracttype, ArrayBinary, ConversionError, Env, EnvVal, IntoEnvVal, RawVal, Vec,
+    contracttype, ArrayBinary, BigInt, ConversionError, Env, EnvVal, IntoEnvVal, RawVal, Vec,
 };
 
 pub type U256 = ArrayBinary<32>;
@@ -15,7 +15,7 @@ pub struct KeyedEd25519Signature {
 #[derive(Clone)]
 #[contracttype]
 pub struct Ed25519Authorization {
-    pub nonce: u64,
+    pub nonce: BigInt,
     pub signature: U512,
 }
 
@@ -29,7 +29,7 @@ pub struct KeyedEd25519Authorization {
 #[derive(Clone)]
 #[contracttype]
 pub struct AccountAuthorization {
-    pub nonce: u64,
+    pub nonce: BigInt,
     pub signatures: Vec<KeyedEd25519Signature>,
 }
 
@@ -78,7 +78,7 @@ pub enum Identifier {
 #[derive(Clone)]
 #[contracttype]
 pub struct MessageV0 {
-    pub nonce: u64,
+    pub nonce: BigInt,
     pub domain: u32,
     pub parameters: Vec<EnvVal>,
 }
