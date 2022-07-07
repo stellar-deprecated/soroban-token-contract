@@ -27,13 +27,13 @@ pub fn to_administrator_authorization(e: &Env, auth: Authorization) -> KeyedAuth
         (Identifier::Ed25519(admin_id), Authorization::Ed25519(ea)) => {
             KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
                 public_key: admin_id,
-                authorization: ea,
+                auth: ea,
             })
         }
         (Identifier::Account(admin_id), Authorization::Account(aa)) => {
             KeyedAuthorization::Account(KeyedAccountAuthorization {
                 public_key: admin_id,
-                authorization: aa,
+                auth: aa,
             })
         }
         _ => panic!(),

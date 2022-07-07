@@ -23,7 +23,7 @@ pub struct Ed25519Authorization {
 #[contracttype]
 pub struct KeyedEd25519Authorization {
     pub public_key: U256,
-    pub authorization: Ed25519Authorization,
+    pub auth: Ed25519Authorization,
 }
 
 #[derive(Clone)]
@@ -37,7 +37,7 @@ pub struct AccountAuthorization {
 #[contracttype]
 pub struct KeyedAccountAuthorization {
     pub public_key: U256,
-    pub authorization: AccountAuthorization,
+    pub auth: AccountAuthorization,
 }
 
 #[derive(Clone)]
