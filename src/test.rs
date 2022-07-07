@@ -10,7 +10,7 @@ use crate::public_types::{
 };
 use ed25519_dalek::{Keypair, Signer};
 use rand::thread_rng;
-use stellar_contract_sdk::{Binary, Env, FixedLengthBinary, VariableLengthBinary};
+use stellar_contract_sdk::{BigInt, Binary, Env, FixedLengthBinary, VariableLengthBinary};
 use stellar_xdr::{ScMap, ScMapEntry, ScObject, ScStatic, ScVal, ScVec, WriteXdr};
 
 fn str_to_symbol(s: &str) -> ScVal {
