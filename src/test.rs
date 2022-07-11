@@ -88,8 +88,7 @@ enum ExternalMessage {
     V0(ExternalMessageV0),
 }
 
-// TODO: Why is this ScObject and not ScVal?
-impl From<ExternalMessage> for ScObject {
+impl From<ExternalMessage> for ScVal {
     fn from(msg: ExternalMessage) -> Self {
         let mut msg_vec = ExternalVec::new();
         match msg {
@@ -98,7 +97,7 @@ impl From<ExternalMessage> for ScObject {
                 msg_vec.push(v0.into());
             }
         };
-        ScObject::Vec(ScVec(msg_vec.try_into().unwrap()))
+        ScVal::Object(Some(ScObject::Vec(ScVec(msg_vec.try_into().unwrap()))))
     }
 }
 
@@ -106,7 +105,7 @@ fn sign(e: &Env, kp: &Keypair, msg: ExternalMessageV0) -> U512 {
     use sha2::Digest;
 
     let mut buf = ExternalVec::<u8>::new();
-    let msg: ScObject = ExternalMessage::V0(msg).into();
+    let msg: ScVal = ExternalMessage::V0(msg).into();
     msg.write_xdr(&mut buf).unwrap();
 
     let mut bin = Binary::new(e);
