@@ -99,7 +99,7 @@ pub fn freeze(e: Env, admin: Authorization, id: Identifier) {
         &e,
         auth,
         Domain::Freeze,
-        (id.clone(), ()).clone().into_env_val(&e),
+        (id.clone(),).clone().into_env_val(&e),
     );
     write_state(&e, id, true);
 }
@@ -123,7 +123,7 @@ pub fn set_admin(e: Env, admin: Authorization, new_admin: Identifier) {
         &e,
         auth,
         Domain::SetAdministrator,
-        (new_admin.clone(), ()).into_env_val(&e),
+        (new_admin.clone(),).into_env_val(&e),
     );
     write_administrator(&e, new_admin);
 }
@@ -131,11 +131,6 @@ pub fn set_admin(e: Env, admin: Authorization, new_admin: Identifier) {
 #[contractfn]
 pub fn unfreeze(e: Env, admin: Authorization, id: Identifier) {
     let auth = to_administrator_authorization(&e, admin);
-    check_auth(
-        &e,
-        auth,
-        Domain::Unfreeze,
-        (id.clone(), ()).into_env_val(&e),
-    );
+    check_auth(&e, auth, Domain::Unfreeze, (id.clone(),).into_env_val(&e));
     write_state(&e, id, false);
 }

@@ -11,7 +11,7 @@ use crate::public_types::{
 use ed25519_dalek::{Keypair, Signer};
 use rand::thread_rng;
 use stellar_contract_sdk::{Binary, Env, FixedLengthBinary, VariableLengthBinary};
-use stellar_xdr::{ScBigInt, ScMap, ScMapEntry, ScObject, ScStatic, ScVal, ScVec, WriteXdr};
+use stellar_xdr::{ScBigInt, ScMap, ScMapEntry, ScObject, ScVal, ScVec, WriteXdr};
 
 fn str_to_symbol(s: &str) -> ScVal {
     use std::vec::Vec;
@@ -270,11 +270,7 @@ fn do_freeze(e: &Env, kp: &Keypair, id: &Identifier) {
     let msg = ExternalMessageV0 {
         nonce: nonce.clone(),
         domain: Domain::Freeze,
-        parameters: ScVec(
-            vec![id.clone().into(), ScVal::Static(ScStatic::Void)]
-                .try_into()
-                .unwrap(),
-        ),
+        parameters: ScVec(vec![id.clone().into()].try_into().unwrap()),
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
@@ -317,11 +313,7 @@ fn do_set_admin(e: &Env, kp: &Keypair, new_admin: &Identifier) {
     let msg = ExternalMessageV0 {
         nonce: nonce.clone(),
         domain: Domain::SetAdministrator,
-        parameters: ScVec(
-            vec![new_admin.clone().into(), ScVal::Static(ScStatic::Void)]
-                .try_into()
-                .unwrap(),
-        ),
+        parameters: ScVec(vec![new_admin.clone().into()].try_into().unwrap()),
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
@@ -338,11 +330,7 @@ fn do_unfreeze(e: &Env, kp: &Keypair, id: &Identifier) {
     let msg = ExternalMessageV0 {
         nonce: nonce.clone(),
         domain: Domain::Unfreeze,
-        parameters: ScVec(
-            vec![id.clone().into(), ScVal::Static(ScStatic::Void)]
-                .try_into()
-                .unwrap(),
-        ),
+        parameters: ScVec(vec![id.clone().into()].try_into().unwrap()),
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
