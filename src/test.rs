@@ -11,7 +11,7 @@ use crate::public_types::{
 use ed25519_dalek::{Keypair, Signer};
 use rand::thread_rng;
 use stellar_contract_sdk::{Binary, Env, FixedLengthBinary, VariableLengthBinary};
-use stellar_xdr::{ScBigInt, ScMap, ScMapEntry, ScObject, ScStatic, ScVal, ScVec, WriteXdr};
+use stellar_xdr::{ScBigInt, ScMap, ScMapEntry, ScObject, ScVal, ScVec, WriteXdr};
 
 fn str_to_symbol(s: &str) -> ScVal {
     use std::vec::Vec;
@@ -88,8 +88,7 @@ enum ExternalMessage {
     V0(ExternalMessageV0),
 }
 
-// TODO: Why is this ScObject and not ScVal?
-impl From<ExternalMessage> for ScObject {
+impl From<ExternalMessage> for ScVal {
     fn from(msg: ExternalMessage) -> Self {
         let mut msg_vec = ExternalVec::new();
         match msg {
@@ -98,7 +97,7 @@ impl From<ExternalMessage> for ScObject {
                 msg_vec.push(v0.into());
             }
         };
-        ScObject::Vec(ScVec(msg_vec.try_into().unwrap()))
+        ScVal::Object(Some(ScObject::Vec(ScVec(msg_vec.try_into().unwrap()))))
     }
 }
 
@@ -106,7 +105,7 @@ fn sign(e: &Env, kp: &Keypair, msg: ExternalMessageV0) -> U512 {
     use sha2::Digest;
 
     let mut buf = ExternalVec::<u8>::new();
-    let msg: ScObject = ExternalMessage::V0(msg).into();
+    let msg: ScVal = ExternalMessage::V0(msg).into();
     msg.write_xdr(&mut buf).unwrap();
 
     let mut bin = Binary::new(e);
@@ -271,11 +270,7 @@ fn do_freeze(e: &Env, kp: &Keypair, id: &Identifier) {
     let msg = ExternalMessageV0 {
         nonce: nonce.clone(),
         domain: Domain::Freeze,
-        parameters: ScVec(
-            vec![id.clone().into(), ScVal::Static(ScStatic::Void)]
-                .try_into()
-                .unwrap(),
-        ),
+        parameters: ScVec(vec![id.clone().into()].try_into().unwrap()),
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
@@ -318,11 +313,7 @@ fn do_set_admin(e: &Env, kp: &Keypair, new_admin: &Identifier) {
     let msg = ExternalMessageV0 {
         nonce: nonce.clone(),
         domain: Domain::SetAdministrator,
-        parameters: ScVec(
-            vec![new_admin.clone().into(), ScVal::Static(ScStatic::Void)]
-                .try_into()
-                .unwrap(),
-        ),
+        parameters: ScVec(vec![new_admin.clone().into()].try_into().unwrap()),
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
@@ -339,11 +330,7 @@ fn do_unfreeze(e: &Env, kp: &Keypair, id: &Identifier) {
     let msg = ExternalMessageV0 {
         nonce: nonce.clone(),
         domain: Domain::Unfreeze,
-        parameters: ScVec(
-            vec![id.clone().into(), ScVal::Static(ScStatic::Void)]
-                .try_into()
-                .unwrap(),
-        ),
+        parameters: ScVec(vec![id.clone().into()].try_into().unwrap()),
     };
 
     let auth = Authorization::Ed25519(Ed25519Authorization {
