@@ -2,7 +2,7 @@
 
 use std::vec::Vec as ExternalVec;
 
-use crate::contract;
+use crate::contract::{Token, TokenTrait};
 use crate::cryptography::Domain;
 use crate::public_types::{
     Authorization, Ed25519Authorization, Identifier, KeyedAuthorization, KeyedEd25519Authorization,
@@ -116,16 +116,16 @@ fn sign(e: &Env, kp: &Keypair, msg: ExternalMessageV0) -> U512 {
 }
 
 fn do_initialize(e: &Env, admin: &Identifier) {
-    contract::initialize(e.clone(), admin.clone());
+    Token::initialize(e.clone(), admin.clone());
 }
 
 fn do_nonce(e: &Env, id: &Identifier) -> ExternalBigInt {
-    let nonce: u64 = contract::nonce(e.clone(), id.clone()).try_into().unwrap();
+    let nonce: u64 = Token::nonce(e.clone(), id.clone()).try_into().unwrap();
     ExternalBigInt(num_bigint::BigInt::from(nonce))
 }
 
 fn do_allowance(e: &Env, from: &Identifier, spender: &Identifier) -> ExternalBigInt {
-    let allowance: u64 = contract::allowance(e.clone(), from.clone(), spender.clone())
+    let allowance: u64 = Token::allowance(e.clone(), from.clone(), spender.clone())
         .try_into()
         .unwrap();
     ExternalBigInt(num_bigint::BigInt::from(allowance))
@@ -153,7 +153,7 @@ fn do_approve(e: &Env, kp: &Keypair, spender: &Identifier, amount: ExternalBigIn
             signature: sign(e, kp, msg),
         },
     });
-    contract::approve(
+    Token::approve(
         e.clone(),
         auth,
         spender.clone(),
@@ -162,7 +162,7 @@ fn do_approve(e: &Env, kp: &Keypair, spender: &Identifier, amount: ExternalBigIn
 }
 
 fn do_balance(e: &Env, id: &Identifier) -> ExternalBigInt {
-    let balance: u64 = contract::balance(e.clone(), id.clone()).try_into().unwrap();
+    let balance: u64 = Token::balance(e.clone(), id.clone()).try_into().unwrap();
     ExternalBigInt(num_bigint::BigInt::from(balance))
 }
 
@@ -188,7 +188,7 @@ fn do_transfer(e: &Env, kp: &Keypair, to: &Identifier, amount: ExternalBigInt) {
             signature: sign(e, kp, msg),
         },
     });
-    contract::xfer(
+    Token::xfer(
         e.clone(),
         auth,
         to.clone(),
@@ -228,7 +228,7 @@ fn do_transfer_from(
             signature: sign(e, kp, msg),
         },
     });
-    contract::xfer_from(
+    Token::xfer_from(
         e.clone(),
         auth,
         from.clone(),
@@ -255,7 +255,7 @@ fn do_burn(e: &Env, kp: &Keypair, from: &Identifier, amount: ExternalBigInt) {
         nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
-    contract::burn(
+    Token::burn(
         e.clone(),
         auth,
         from.clone(),
@@ -277,7 +277,7 @@ fn do_freeze(e: &Env, kp: &Keypair, id: &Identifier) {
         nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
-    contract::freeze(e.clone(), auth, id.clone());
+    Token::freeze(e.clone(), auth, id.clone());
 }
 
 fn do_mint(e: &Env, kp: &Keypair, to: &Identifier, amount: ExternalBigInt) {
@@ -298,7 +298,7 @@ fn do_mint(e: &Env, kp: &Keypair, to: &Identifier, amount: ExternalBigInt) {
         nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
-    contract::mint(
+    Token::mint(
         e.clone(),
         auth,
         to.clone(),
@@ -320,7 +320,7 @@ fn do_set_admin(e: &Env, kp: &Keypair, new_admin: &Identifier) {
         nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
-    contract::set_admin(e.clone(), auth, new_admin.clone());
+    Token::set_admin(e.clone(), auth, new_admin.clone());
 }
 
 fn do_unfreeze(e: &Env, kp: &Keypair, id: &Identifier) {
@@ -337,7 +337,7 @@ fn do_unfreeze(e: &Env, kp: &Keypair, id: &Identifier) {
         nonce: bigint_from_external(e, &nonce),
         signature: sign(e, kp, msg),
     });
-    contract::unfreeze(e.clone(), auth, id.clone());
+    Token::unfreeze(e.clone(), auth, id.clone());
 }
 
 impl From<Identifier> for ScVal {
@@ -408,11 +408,11 @@ fn test_every_function() {
     assert_eq!(do_nonce(&e, &admin_id1), 2u64.into());
 
     do_freeze(&e, &admin_kp2, &id2);
-    assert_eq!(contract::is_frozen(e.clone(), id2.clone()), true);
+    assert_eq!(Token::is_frozen(e.clone(), id2.clone()), true);
     assert_eq!(do_nonce(&e, &admin_id2), 1u64.into());
 
     do_unfreeze(&e, &admin_kp2, &id3);
-    assert_eq!(contract::is_frozen(e.clone(), id3.clone()), false);
+    assert_eq!(Token::is_frozen(e.clone(), id3.clone()), false);
     assert_eq!(do_nonce(&e, &admin_id2), 2u64.into());
 
     do_burn(&e, &admin_kp2, &id3, 100u64.into());
