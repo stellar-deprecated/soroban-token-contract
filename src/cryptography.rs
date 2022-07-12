@@ -54,7 +54,7 @@ fn check_account_auth(
 
     let sigs = &auth.auth.signatures;
     let mut prev_pk: Option<U256> = None;
-    for sig in sigs.iter() {
+    for sig in sigs.iter().map(|x| x.unwrap()) {
         // Cannot take multiple signatures from the same key
         if let Some(prev) = prev_pk {
             if prev >= sig.public_key {
