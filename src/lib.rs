@@ -9,6 +9,7 @@ mod allowance;
 mod balance;
 mod contract;
 mod cryptography;
+pub mod external;
 mod nonce;
 mod public_types;
 mod storage_types;
