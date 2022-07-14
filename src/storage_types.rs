@@ -15,5 +15,5 @@ pub enum DataKey {
     Balance(Identifier),
     Nonce(Identifier),
     State(Identifier),
-    Administrator,
+    Admin,
 }
