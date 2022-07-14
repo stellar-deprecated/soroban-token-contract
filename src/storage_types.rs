@@ -1,5 +1,5 @@
 use crate::public_types::Identifier;
-use stellar_contract_sdk::{contracttype, ConversionError, Env, EnvVal, IntoEnvVal, RawVal};
+use stellar_contract_sdk::{contracttype, ConversionError, IntoEnvVal};
 
 #[derive(Clone)]
 #[contracttype]
