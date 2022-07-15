@@ -1,4 +1,4 @@
-#![cfg(test)]
+#![cfg(feature = "external")]
 #![allow(dead_code)]
 
 use std::vec::Vec;
