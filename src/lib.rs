@@ -11,6 +11,6 @@ mod contract;
 mod cryptography;
 pub mod external;
 mod nonce;
-mod public_types;
+pub mod public_types;
 mod storage_types;
 mod test;
