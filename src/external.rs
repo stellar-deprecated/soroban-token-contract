@@ -11,15 +11,15 @@ use stellar_xdr::{
     HostFunction, ScBigInt, ScMap, ScMapEntry, ScObject, ScStatic, ScVal, ScVec, WriteXdr,
 };
 
-trait ToScVal {
+pub trait ToScVal {
     fn to_scval(&self) -> Result<ScVal, ()>;
 }
 
-trait ToScVec {
+pub trait ToScVec {
     fn to_scvec(&self) -> Result<ScVec, ()>;
 }
 
-trait FromScVal<T>: Sized {
+pub trait FromScVal<T>: Sized {
     fn from_scval(&self) -> Result<T, ()>;
 }
 
