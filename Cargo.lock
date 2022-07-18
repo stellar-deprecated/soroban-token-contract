@@ -509,7 +509,7 @@ source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=94c1717#94c
 [[package]]
 name = "stellar-contract-macros"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=567a988#567a988cc07c80b7e46c2cc46395eabecb7cbe18"
+source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=0242e9f#0242e9f02dbb1db8ddd8536d879d53b4ae9c28a1"
 dependencies = [
  "itertools",
  "proc-macro2",
@@ -521,7 +521,7 @@ dependencies = [
 [[package]]
 name = "stellar-contract-sdk"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=567a988#567a988cc07c80b7e46c2cc46395eabecb7cbe18"
+source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=0242e9f#0242e9f02dbb1db8ddd8536d879d53b4ae9c28a1"
 dependencies = [
  "stellar-contract-env-guest",
  "stellar-contract-env-host",
