@@ -9,12 +9,12 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "57326ca" }
+stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "567a988" }
 
 [dev_dependencies]
 ed25519-dalek = "1.0.1"
 num-bigint = "0.4"
 rand = "0.7.3"
 sha2 = "0.10.2"
-stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "57326ca", features = ["testutils"] }
-stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "540ed24", features = ["next", "std"] }
+stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "567a988", features = ["testutils"] }
+stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "d998d5e", features = ["next", "std"] }
