@@ -1,5 +1,5 @@
 use stellar_contract_sdk::{
-    contracttype, ArrayBinary, BigInt, ConversionError, Env, EnvVal, IntoEnvVal, RawVal, Vec,
+    contracttype, ArrayBinary, BigInt, ConversionError, Env, EnvVal, IntoEnvVal, Vec,
 };
 
 pub type U256 = ArrayBinary<32>;

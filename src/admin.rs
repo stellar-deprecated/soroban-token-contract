@@ -6,12 +6,12 @@ use crate::storage_types::DataKey;
 use stellar_contract_sdk::Env;
 
 pub fn has_administrator(e: &Env) -> bool {
-    let key = DataKey::Administrator;
+    let key = DataKey::Admin;
     e.has_contract_data(key)
 }
 
 fn read_administrator(e: &Env) -> Identifier {
-    let key = DataKey::Administrator;
+    let key = DataKey::Admin;
     e.get_contract_data(key)
 }
 
@@ -41,6 +41,6 @@ pub fn to_administrator_authorization(e: &Env, auth: Authorization) -> KeyedAuth
 }
 
 pub fn write_administrator(e: &Env, id: Identifier) {
-    let key = DataKey::Administrator;
+    let key = DataKey::Admin;
     e.put_contract_data(key, id);
 }
