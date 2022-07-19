@@ -1,4 +1,4 @@
-#![cfg(test)]
+#![cfg(features = "external")]
 
 use crate::external;
 use ed25519_dalek::Keypair;
