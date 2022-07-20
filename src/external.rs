@@ -3,9 +3,11 @@
 
 use std::vec::Vec;
 
+use ed25519_dalek::{Keypair, Signer};
 use num_bigint::BigInt;
+use sha2::Digest;
 use stellar_contract_sdk::{Binary, Env, VariableLengthBinary};
-use stellar_xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal};
+use stellar_xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal, WriteXdr};
 
 pub type U256 = [u8; 32];
 pub type U512 = [u8; 64];
@@ -125,7 +127,7 @@ pub enum MessageWithoutNonce {
 
 pub struct Message(pub BigInt, pub MessageWithoutNonce);
 
-impl TryInto<ScVal> for Message {
+impl TryInto<ScVal> for &Message {
     type Error = ();
     fn try_into(self) -> Result<ScVal, Self::Error> {
         let mut map = Vec::new();
@@ -245,6 +247,15 @@ impl TryInto<ScVal> for Message {
         };
         let scmap = ScVal::Object(Some(ScObject::Map(ScMap(map.try_into().map_err(|_| ())?))));
         ("V0", scmap).try_into()
+    }
+}
+
+impl Message {
+    pub fn sign(&self, kp: &Keypair) -> Result<U512, ()> {
+        let mut buf = Vec::<u8>::new();
+        let val: ScVal = self.try_into()?;
+        val.write_xdr(&mut buf).map_err(|_| ())?;
+        Ok(kp.sign(sha2::Sha256::digest(&buf).as_slice()).to_bytes())
     }
 }
 
