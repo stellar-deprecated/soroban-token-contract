@@ -7,7 +7,7 @@ use ed25519_dalek::{Keypair, Signer};
 use num_bigint::BigInt;
 use sha2::Digest;
 use stellar_contract_sdk::{Binary, Env, VariableLengthBinary};
-use stellar_xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal, WriteXdr};
+use stellar_contract_sdk::xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal, WriteXdr};
 
 pub type U256 = [u8; 32];
 pub type U512 = [u8; 64];
