@@ -17,9 +17,9 @@ external = ["stellar-contract-sdk/testutils", "dep:ed25519-dalek", "dep:num-bigi
 ed25519-dalek = { version = "1.0.1", optional = true }
 num-bigint = { version = "0.4", optional = true }
 sha2 = { version = "0.10.2", optional = true }
-stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "7ec1be48" }
-# stellar-contract-sdk = { path = "../rs-stellar-contract-sdk" }
-# stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "61129e16", features = ["next", "std"], optional = true }
+# stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "7ec1be48" }
+stellar-contract-sdk = { path = "../rs-stellar-contract-sdk/sdk" }
+# stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "61129e16", features = ["next", "std", "num-bigint"], optional = true }
 stellar-xdr = { path = "../rs-stellar-xdr", features = ["next", "std"], optional = true }
 
 [dev_dependencies]

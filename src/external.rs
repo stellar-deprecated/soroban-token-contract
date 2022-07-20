@@ -4,8 +4,8 @@
 use std::vec::Vec;
 
 use num_bigint::BigInt;
+use stellar_contract_sdk::xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal};
 use stellar_contract_sdk::{Binary, Env, VariableLengthBinary};
-use stellar_xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal};
 
 pub type U256 = [u8; 32];
 pub type U512 = [u8; 64];
@@ -20,10 +20,21 @@ impl TryInto<ScVal> for &Identifier {
     type Error = ();
     fn try_into(self) -> Result<ScVal, Self::Error> {
         match self {
-            Identifier::Contract(x) => ("Contract", x).try_into()?,
-            Identifier::Ed25519(x) => ("Ed25519", x).try_into()?,
-            Identifier::Account(x) => ("Account", x).try_into()?,
+            Identifier::Contract(x) => {
+                let c: ScVal = "Contract".try_into()?;
+                let x: ScVal = x.try_into()?;
+                (c, x).try_into()
+            },
+            Identifier::Ed25519(x) => ("Ed25519", x).try_into(),
+            Identifier::Account(x) => ("Account", x).try_into(),
         }
+    }
+}
+
+impl TryInto<ScVal> for Identifier {
+    type Error = ();
+    fn try_into(self) -> Result<ScVal, Self::Error> {
+        (&self).try_into()
     }
 }
 
@@ -38,12 +49,12 @@ impl TryInto<ScVal> for &Ed25519Authorization {
     fn try_into(self) -> Result<ScVal, Self::Error> {
         let mut map = Vec::new();
         map.push(ScMapEntry {
-            key: "nonce".to_scval()?,
-            val: (&self.nonce).to_scval()?,
+            key: "nonce".try_into()?,
+            val: (&self.nonce).try_into()?,
         });
         map.push(ScMapEntry {
-            key: "signature".to_scval()?,
-            val: (&self.signature).to_scval()?,
+            key: "signature".try_into()?,
+            val: (&self.signature).try_into()?,
         });
         Ok(ScVal::Object(Some(ScObject::Map(ScMap(map.try_into()?)))))
     }
@@ -60,12 +71,12 @@ impl TryInto<ScVal> for &KeyedEd25519Authorization {
     fn try_into(self) -> Result<ScVal, Self::Error> {
         let mut map = Vec::new();
         map.push(ScMapEntry {
-            key: "public_key".to_scval()?,
-            val: (&self.public_key).to_scval()?,
+            key: "public_key".try_into()?,
+            val: (&self.public_key).try_into()?,
         });
         map.push(ScMapEntry {
-            key: "auth".to_scval()?,
-            val: (&self.auth).to_scval()?,
+            key: "auth".try_into()?,
+            val: (&self.auth).try_into()?,
         });
         Ok(ScVal::Object(Some(ScObject::Map(ScMap(map.try_into()?)))))
     }
@@ -81,7 +92,7 @@ impl TryInto<ScVal> for &Authorization {
     type Error = ();
     fn try_into(self) -> Result<ScVal, Self::Error> {
         match self {
-            Authorization::Ed25519(x) => ("Ed25519", x).to_scval(),
+            Authorization::Ed25519(x) => ("Ed25519", x).try_into(),
         }
     }
 }
@@ -96,7 +107,7 @@ impl TryInto<ScVal> for &KeyedAuthorization {
     type Error = ();
     fn try_into(self) -> Result<ScVal, Self::Error> {
         match self {
-            KeyedAuthorization::Ed25519(x) => ("Ed25519", x).to_scval(),
+            KeyedAuthorization::Ed25519(x) => ("Ed25519", x).try_into(),
         }
     }
 }
@@ -121,119 +132,119 @@ impl TryInto<ScVal> for Message {
         match self {
             Message(nonce, MessageWithoutNonce::Approve(id, amount)) => {
                 map.push(ScMapEntry {
-                    key: "domain".to_scval()?,
-                    val: 0u32.to_scval()?,
+                    key: "domain".try_into()?,
+                    val: 0u32.into(),
                 });
                 map.push(ScMapEntry {
-                    key: "nonce".to_scval()?,
-                    val: nonce.to_scval()?,
+                    key: "nonce".try_into()?,
+                    val: nonce.try_into()?,
                 });
                 map.push(ScMapEntry {
-                    key: "parameters".to_scval()?,
-                    val: (id, amount).to_scval()?,
+                    key: "parameters".try_into()?,
+                    val: (id, amount).try_into()?,
                 });
             }
             Message(nonce, MessageWithoutNonce::Transfer(to, amount)) => {
                 map.push(ScMapEntry {
-                    key: "domain".to_scval()?,
-                    val: 1u32.to_scval()?,
+                    key: "domain".try_into()?,
+                    val: 1u32.into(),
                 });
                 map.push(ScMapEntry {
-                    key: "nonce".to_scval()?,
-                    val: nonce.to_scval()?,
+                    key: "nonce".try_into()?,
+                    val: nonce.try_into()?,
                 });
                 map.push(ScMapEntry {
-                    key: "parameters".to_scval()?,
-                    val: (to, amount).to_scval()?,
+                    key: "parameters".try_into()?,
+                    val: (to, amount).try_into()?,
                 });
             }
             Message(nonce, MessageWithoutNonce::TransferFrom(from, to, amount)) => {
                 map.push(ScMapEntry {
-                    key: "domain".to_scval()?,
-                    val: 2u32.to_scval()?,
+                    key: "domain".try_into()?,
+                    val: 2u32.into(),
                 });
                 map.push(ScMapEntry {
-                    key: "nonce".to_scval()?,
-                    val: nonce.to_scval()?,
+                    key: "nonce".try_into()?,
+                    val: nonce.try_into()?,
                 });
                 map.push(ScMapEntry {
-                    key: "parameters".to_scval()?,
-                    val: (from, to, amount).to_scval()?,
+                    key: "parameters".try_into()?,
+                    val: (from, to, amount).try_into()?,
                 });
             }
             Message(nonce, MessageWithoutNonce::Burn(from, amount)) => {
                 map.push(ScMapEntry {
-                    key: "domain".to_scval()?,
-                    val: 3u32.to_scval()?,
+                    key: "domain".try_into()?,
+                    val: 3u32.into(),
                 });
                 map.push(ScMapEntry {
-                    key: "nonce".to_scval()?,
-                    val: nonce.to_scval()?,
+                    key: "nonce".try_into()?,
+                    val: nonce.try_into()?,
                 });
                 map.push(ScMapEntry {
-                    key: "parameters".to_scval()?,
-                    val: (from, amount).to_scval()?,
+                    key: "parameters".try_into()?,
+                    val: (from, amount).try_into()?,
                 });
             }
             Message(nonce, MessageWithoutNonce::Freeze(id)) => {
                 map.push(ScMapEntry {
-                    key: "domain".to_scval()?,
-                    val: 4u32.to_scval()?,
+                    key: "domain".try_into()?,
+                    val: 4u32.into(),
                 });
                 map.push(ScMapEntry {
-                    key: "nonce".to_scval()?,
-                    val: nonce.to_scval()?,
+                    key: "nonce".try_into()?,
+                    val: nonce.try_into()?,
                 });
                 map.push(ScMapEntry {
-                    key: "parameters".to_scval()?,
-                    val: (id,).to_scval()?,
+                    key: "parameters".try_into()?,
+                    val: (id,).try_into()?,
                 });
             }
             Message(nonce, MessageWithoutNonce::Mint(to, amount)) => {
                 map.push(ScMapEntry {
-                    key: "domain".to_scval()?,
-                    val: 5u32.to_scval()?,
+                    key: "domain".try_into()?,
+                    val: 5u32.into(),
                 });
                 map.push(ScMapEntry {
-                    key: "nonce".to_scval()?,
-                    val: nonce.to_scval()?,
+                    key: "nonce".try_into()?,
+                    val: nonce.try_into()?,
                 });
                 map.push(ScMapEntry {
-                    key: "parameters".to_scval()?,
-                    val: (to, amount).to_scval()?,
+                    key: "parameters".try_into()?,
+                    val: (to, amount).try_into()?,
                 });
             }
             Message(nonce, MessageWithoutNonce::SetAdministrator(id)) => {
                 map.push(ScMapEntry {
-                    key: "domain".to_scval()?,
-                    val: 6u32.to_scval()?,
+                    key: "domain".try_into()?,
+                    val: 6u32.into(),
                 });
                 map.push(ScMapEntry {
-                    key: "nonce".to_scval()?,
-                    val: nonce.to_scval()?,
+                    key: "nonce".try_into()?,
+                    val: nonce.try_into()?,
                 });
                 map.push(ScMapEntry {
-                    key: "parameters".to_scval()?,
-                    val: (id,).to_scval()?,
+                    key: "parameters".try_into()?,
+                    val: (id,).try_into()?,
                 });
             }
             Message(nonce, MessageWithoutNonce::Unfreeze(id)) => {
                 map.push(ScMapEntry {
-                    key: "domain".to_scval()?,
-                    val: 7u32.to_scval()?,
+                    key: "domain".try_into()?,
+                    val: 7u32.into(),
                 });
                 map.push(ScMapEntry {
-                    key: "nonce".to_scval()?,
-                    val: nonce.to_scval()?,
+                    key: "nonce".try_into()?,
+                    val: nonce.try_into()?,
                 });
                 map.push(ScMapEntry {
-                    key: "parameters".to_scval()?,
-                    val: (id,).to_scval()?,
+                    key: "parameters".try_into()?,
+                    val: (id,).try_into()?,
                 });
             }
         };
         let scmap = ScVal::Object(Some(ScObject::Map(ScMap(map.try_into().map_err(|_| ())?))));
-        ("V0", scmap).to_scval()
+        ("V0", scmap).try_into()
     }
 }
 
