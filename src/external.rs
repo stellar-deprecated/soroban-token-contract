@@ -4,8 +4,8 @@
 use std::vec::Vec;
 
 use num_bigint::BigInt;
-use stellar_contract_sdk::xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal};
 use stellar_contract_sdk::{Binary, Env, VariableLengthBinary};
+use stellar_xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal};
 
 pub type U256 = [u8; 32];
 pub type U512 = [u8; 64];
@@ -24,7 +24,7 @@ impl TryInto<ScVal> for &Identifier {
                 let c: ScVal = "Contract".try_into()?;
                 let x: ScVal = x.try_into()?;
                 (c, x).try_into()
-            },
+            }
             Identifier::Ed25519(x) => ("Ed25519", x).try_into(),
             Identifier::Account(x) => ("Account", x).try_into(),
         }
