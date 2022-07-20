@@ -540,7 +540,7 @@ dependencies = [
  "sha2 0.10.2",
  "stellar-contract-sdk",
  "stellar-token-contract",
- "stellar-xdr 0.0.0 (git+https://github.com/stellar/rs-stellar-xdr?rev=a79301db)",
+ "stellar-xdr 0.0.0 (git+https://github.com/stellar/rs-stellar-xdr?rev=61129e16)",
 ]
 
 [[package]]
@@ -551,6 +551,11 @@ dependencies = [
  "base64",
  "serde",
 ]
+
+[[package]]
+name = "stellar-xdr"
+version = "0.0.0"
+source = "git+https://github.com/stellar/rs-stellar-xdr?rev=61129e16#61129e16dea48ee8b0786719ab0c51a1f839c63c"
 
 [[package]]
 name = "stellar-xdr"
