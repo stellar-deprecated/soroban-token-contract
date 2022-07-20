@@ -1,8 +1,8 @@
-use stellar_token_contract::external;
 use ed25519_dalek::Keypair;
-use external::{MessageWithoutNonce as ContractFn};
+use external::MessageWithoutNonce as ContractFn;
 use rand::thread_rng;
 use stellar_contract_sdk::Env;
+use stellar_token_contract::external;
 
 fn generate_keypair() -> Keypair {
     Keypair::generate(&mut thread_rng())
