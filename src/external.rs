@@ -22,11 +22,7 @@ impl TryInto<ScVal> for &Identifier {
     type Error = ();
     fn try_into(self) -> Result<ScVal, Self::Error> {
         match self {
-            Identifier::Contract(x) => {
-                let c: ScVal = "Contract".try_into()?;
-                let x: ScVal = x.try_into()?;
-                (c, x).try_into()
-            }
+            Identifier::Contract(x) => ("Contract", x).try_into(),
             Identifier::Ed25519(x) => ("Ed25519", x).try_into(),
             Identifier::Account(x) => ("Account", x).try_into(),
         }
