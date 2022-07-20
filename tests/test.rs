@@ -1,16 +1,8 @@
-#![cfg(features = "external")]
-
-use crate::external;
 use ed25519_dalek::Keypair;
-use external::{Identifier, MessageWithoutNonce as ContractFn};
+use external::MessageWithoutNonce as ContractFn;
 use rand::thread_rng;
 use stellar_contract_sdk::Env;
-
-impl From<&Keypair> for Identifier {
-    fn from(kp: &Keypair) -> Self {
-        Identifier::Ed25519(kp.public.to_bytes())
-    }
-}
+use stellar_token_contract::external;
 
 fn generate_keypair() -> Keypair {
     Keypair::generate(&mut thread_rng())

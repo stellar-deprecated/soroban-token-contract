@@ -9,6 +9,12 @@ use sha2::Digest;
 use stellar_contract_sdk::xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal, WriteXdr};
 use stellar_contract_sdk::{Binary, Env, VariableLengthBinary};
 
+impl From<&Keypair> for Identifier {
+    fn from(kp: &Keypair) -> Self {
+        Identifier::Ed25519(kp.public.to_bytes())
+    }
+}
+
 pub type U256 = [u8; 32];
 pub type U512 = [u8; 64];
 

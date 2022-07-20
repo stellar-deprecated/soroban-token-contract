@@ -22,6 +22,6 @@ stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-s
 stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "06b41ba4", features = ["next"], optional = true }
 # stellar-xdr = { path = "../rs-stellar-xdr", features = ["next"], optional = true }
 
-[dev_dependencies]
+[dev-dependencies]
 stellar-token-contract = { path = ".", features = ["export", "external"] }
 rand = { version = "0.7.3" }
