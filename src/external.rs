@@ -11,6 +11,12 @@ use stellar_xdr::{
     HostFunction, ScBigInt, ScMap, ScMapEntry, ScObject, ScStatic, ScVal, ScVec, WriteXdr,
 };
 
+impl From<&Keypair> for Identifier {
+    fn from(kp: &Keypair) -> Self {
+        Identifier::Ed25519(kp.public.to_bytes())
+    }
+}
+
 pub trait ToScVal {
     fn to_scval(&self) -> Result<ScVal, ()>;
 }
