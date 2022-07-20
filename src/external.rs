@@ -3,123 +3,9 @@
 
 use std::vec::Vec;
 
-use ed25519_dalek::{Keypair, Signer};
-use num_bigint::{BigInt, Sign};
-use sha2::Digest;
+use num_bigint::BigInt;
 use stellar_contract_sdk::{Binary, Env, VariableLengthBinary};
-use stellar_xdr::{
-    HostFunction, ScBigInt, ScMap, ScMapEntry, ScObject, ScStatic, ScVal, ScVec, WriteXdr,
-};
-
-pub trait ToScVal {
-    fn to_scval(&self) -> Result<ScVal, ()>;
-}
-
-pub trait ToScVec {
-    fn to_scvec(&self) -> Result<ScVec, ()>;
-}
-
-pub trait FromScVal<T>: Sized {
-    fn from_scval(&self) -> Result<T, ()>;
-}
-
-impl ToScVal for ScVal {
-    fn to_scval(&self) -> Result<ScVal, ()> {
-        Ok(self.clone())
-    }
-}
-
-impl ToScVal for u32 {
-    fn to_scval(&self) -> Result<ScVal, ()> {
-        Ok(ScVal::U32(*self))
-    }
-}
-
-impl FromScVal<u32> for ScVal {
-    fn from_scval(&self) -> Result<u32, ()> {
-        match self {
-            ScVal::U32(x) => Ok(*x),
-            _ => Err(()),
-        }
-    }
-}
-
-impl ToScVal for &str {
-    fn to_scval(&self) -> Result<ScVal, ()> {
-        let bytes: Vec<u8> = self.as_bytes().iter().cloned().collect();
-        Ok(ScVal::Symbol(bytes.try_into().map_err(|_| ())?))
-    }
-}
-
-impl FromScVal<bool> for ScVal {
-    fn from_scval(&self) -> Result<bool, ()> {
-        match self {
-            ScVal::Static(ScStatic::False) => Ok(false),
-            ScVal::Static(ScStatic::True) => Ok(true),
-            _ => Err(()),
-        }
-    }
-}
-
-impl<const N: usize> ToScVal for &[u8; N] {
-    fn to_scval(&self) -> Result<ScVal, ()> {
-        let bytes: Vec<u8> = self.iter().cloned().collect();
-        Ok(ScVal::Object(Some(ScObject::Binary(
-            bytes.try_into().map_err(|_| ())?,
-        ))))
-    }
-}
-
-impl ToScVal for &BigInt {
-    fn to_scval(&self) -> Result<ScVal, ()> {
-        let scbi = match self.to_bytes_be() {
-            (Sign::NoSign, _) => ScBigInt::Zero,
-            (Sign::Plus, bytes) => ScBigInt::Positive(bytes.try_into().map_err(|_| ())?),
-            (Sign::Minus, bytes) => ScBigInt::Negative(bytes.try_into().map_err(|_| ())?),
-        };
-        Ok(ScVal::Object(Some(ScObject::BigInt(scbi))))
-    }
-}
-
-impl FromScVal<BigInt> for ScVal {
-    fn from_scval(&self) -> Result<BigInt, ()> {
-        match self {
-            ScVal::Object(Some(ScObject::BigInt(ScBigInt::Zero))) => Ok(0u32.into()),
-            ScVal::Object(Some(ScObject::BigInt(ScBigInt::Positive(bytes)))) => {
-                Ok(BigInt::from_bytes_be(Sign::Plus, bytes))
-            }
-            ScVal::Object(Some(ScObject::BigInt(ScBigInt::Negative(bytes)))) => {
-                Ok(BigInt::from_bytes_be(Sign::Minus, bytes))
-            }
-            _ => Err(()),
-        }
-    }
-}
-
-macro_rules! tuple_to_scval {
-    ($($i:tt $t:ident),+) => {
-        impl<$($t: ToScVal),+> ToScVal for ($($t,)+) {
-            fn to_scval(&self) -> Result<ScVal, ()> {
-                let vec = vec![$(self.$i.to_scval()?),+];
-                Ok(ScVal::Object(Some(ScObject::Vec(ScVec(vec.try_into()?)))))
-            }
-        }
-
-        impl<$($t: ToScVal),+> ToScVec for ($($t,)+) {
-            fn to_scvec(&self) -> Result<ScVec, ()> {
-                let vec = vec![$(self.$i.to_scval()?),+];
-                Ok(ScVec(vec.try_into()?))
-            }
-        }
-    }
-}
-
-tuple_to_scval!(0 T0);
-tuple_to_scval!(0 T0, 1 T1);
-tuple_to_scval!(0 T0, 1 T1, 2 T2);
-tuple_to_scval!(0 T0, 1 T1, 2 T2, 3 T3);
-tuple_to_scval!(0 T0, 1 T1, 2 T2, 3 T3, 4 T4);
-tuple_to_scval!(0 T0, 1 T1, 2 T2, 3 T3, 4 T4, 5 T5);
+use stellar_xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal};
 
 pub type U256 = [u8; 32];
 pub type U512 = [u8; 64];
@@ -130,12 +16,13 @@ pub enum Identifier {
     Account(U256),
 }
 
-impl ToScVal for &Identifier {
-    fn to_scval(&self) -> Result<ScVal, ()> {
+impl TryInto<ScVal> for &Identifier {
+    type Error = ();
+    fn try_into(self) -> Result<ScVal, Self::Error> {
         match self {
-            Identifier::Contract(x) => ("Contract", x).to_scval(),
-            Identifier::Ed25519(x) => ("Ed25519", x).to_scval(),
-            Identifier::Account(x) => ("Account", x).to_scval(),
+            Identifier::Contract(x) => ("Contract", x).try_into()?,
+            Identifier::Ed25519(x) => ("Ed25519", x).try_into()?,
+            Identifier::Account(x) => ("Account", x).try_into()?,
         }
     }
 }
@@ -146,8 +33,9 @@ pub struct Ed25519Authorization {
     pub signature: U512,
 }
 
-impl ToScVal for &Ed25519Authorization {
-    fn to_scval(&self) -> Result<ScVal, ()> {
+impl TryInto<ScVal> for &Ed25519Authorization {
+    type Error = ();
+    fn try_into(self) -> Result<ScVal, Self::Error> {
         let mut map = Vec::new();
         map.push(ScMapEntry {
             key: "nonce".to_scval()?,
@@ -167,8 +55,9 @@ pub struct KeyedEd25519Authorization {
     pub auth: Ed25519Authorization,
 }
 
-impl ToScVal for &KeyedEd25519Authorization {
-    fn to_scval(&self) -> Result<ScVal, ()> {
+impl TryInto<ScVal> for &KeyedEd25519Authorization {
+    type Error = ();
+    fn try_into(self) -> Result<ScVal, Self::Error> {
         let mut map = Vec::new();
         map.push(ScMapEntry {
             key: "public_key".to_scval()?,
@@ -188,8 +77,9 @@ pub enum Authorization {
     Ed25519(Ed25519Authorization),
 }
 
-impl ToScVal for &Authorization {
-    fn to_scval(&self) -> Result<ScVal, ()> {
+impl TryInto<ScVal> for &Authorization {
+    type Error = ();
+    fn try_into(self) -> Result<ScVal, Self::Error> {
         match self {
             Authorization::Ed25519(x) => ("Ed25519", x).to_scval(),
         }
@@ -202,8 +92,9 @@ pub enum KeyedAuthorization {
     Ed25519(KeyedEd25519Authorization),
 }
 
-impl ToScVal for &KeyedAuthorization {
-    fn to_scval(&self) -> Result<ScVal, ()> {
+impl TryInto<ScVal> for &KeyedAuthorization {
+    type Error = ();
+    fn try_into(self) -> Result<ScVal, Self::Error> {
         match self {
             KeyedAuthorization::Ed25519(x) => ("Ed25519", x).to_scval(),
         }
@@ -223,8 +114,9 @@ pub enum MessageWithoutNonce {
 
 pub struct Message(pub BigInt, pub MessageWithoutNonce);
 
-impl ToScVal for Message {
-    fn to_scval(&self) -> Result<ScVal, ()> {
+impl TryInto<ScVal> for Message {
+    type Error = ();
+    fn try_into(self) -> Result<ScVal, Self::Error> {
         let mut map = Vec::new();
         match self {
             Message(nonce, MessageWithoutNonce::Approve(id, amount)) => {
@@ -345,14 +237,6 @@ impl ToScVal for Message {
     }
 }
 
-impl Message {
-    pub fn sign(&self, kp: &Keypair) -> Result<U512, ()> {
-        let mut buf = Vec::<u8>::new();
-        self.to_scval()?.write_xdr(&mut buf).map_err(|_| ())?;
-        Ok(kp.sign(sha2::Sha256::digest(&buf).as_slice()).to_bytes())
-    }
-}
-
 macro_rules! contract_fn {
     ($name:ident, $f:ident, $n:tt, $($i:tt),+) => {
         pub fn $name(e: Env, args: &[RawVal]) -> RawVal {
@@ -409,16 +293,16 @@ pub fn register_test_contract(e: &Env, contract_id: &U256) {
 pub fn initialize(e: &mut Env, contract_id: &U256, admin: &Identifier) {
     e.invoke_contract(
         HostFunction::Call,
-        (contract_id, "initialize", admin).to_scvec().unwrap(),
+        (contract_id, "initialize", admin).try_into().unwrap(),
     );
 }
 
 pub fn nonce(e: &mut Env, contract_id: &U256, id: &Identifier) -> BigInt {
     e.invoke_contract(
         HostFunction::Call,
-        (contract_id, "nonce", id).to_scvec().unwrap(),
+        (contract_id, "nonce", id).try_into().unwrap(),
     )
-    .from_scval()
+    .try_into()
     .unwrap()
 }
 
@@ -431,10 +315,10 @@ pub fn allowance(
     e.invoke_contract(
         HostFunction::Call,
         (contract_id, "allowance", from, spender)
-            .to_scvec()
+            .try_into()
             .unwrap(),
     )
-    .from_scval()
+    .try_into()
     .unwrap()
 }
 
@@ -448,7 +332,7 @@ pub fn approve(
     e.invoke_contract(
         HostFunction::Call,
         (contract_id, "approve", from, spender, amount)
-            .to_scvec()
+            .try_into()
             .unwrap(),
     );
 }
@@ -456,18 +340,18 @@ pub fn approve(
 pub fn balance(e: &mut Env, contract_id: &U256, id: &Identifier) -> BigInt {
     e.invoke_contract(
         HostFunction::Call,
-        (contract_id, "balance", id).to_scvec().unwrap(),
+        (contract_id, "balance", id).try_into().unwrap(),
     )
-    .from_scval()
+    .try_into()
     .unwrap()
 }
 
 pub fn is_frozen(e: &mut Env, contract_id: &U256, id: &Identifier) -> bool {
     e.invoke_contract(
         HostFunction::Call,
-        (contract_id, "is_frozen", id).to_scvec().unwrap(),
+        (contract_id, "is_frozen", id).try_into().unwrap(),
     )
-    .from_scval()
+    .try_into()
     .unwrap()
 }
 
@@ -480,7 +364,7 @@ pub fn xfer(
 ) {
     e.invoke_contract(
         HostFunction::Call,
-        (contract_id, "xfer", from, to, amount).to_scvec().unwrap(),
+        (contract_id, "xfer", from, to, amount).try_into().unwrap(),
     );
 }
 
@@ -495,7 +379,7 @@ pub fn xfer_from(
     e.invoke_contract(
         HostFunction::Call,
         (contract_id, "xfer_from", spender, from, to, amount)
-            .to_scvec()
+            .try_into()
             .unwrap(),
     );
 }
@@ -510,7 +394,7 @@ pub fn burn(
     e.invoke_contract(
         HostFunction::Call,
         (contract_id, "burn", admin, from, amount)
-            .to_scvec()
+            .try_into()
             .unwrap(),
     );
 }
@@ -518,7 +402,7 @@ pub fn burn(
 pub fn freeze(e: &mut Env, contract_id: &U256, admin: &Authorization, id: &Identifier) {
     e.invoke_contract(
         HostFunction::Call,
-        (contract_id, "freeze", admin, id).to_scvec().unwrap(),
+        (contract_id, "freeze", admin, id).try_into().unwrap(),
     );
 }
 
@@ -531,7 +415,7 @@ pub fn mint(
 ) {
     e.invoke_contract(
         HostFunction::Call,
-        (contract_id, "mint", admin, to, amount).to_scvec().unwrap(),
+        (contract_id, "mint", admin, to, amount).try_into().unwrap(),
     );
 }
 
@@ -539,7 +423,7 @@ pub fn set_admin(e: &mut Env, contract_id: &U256, admin: &Authorization, new_adm
     e.invoke_contract(
         HostFunction::Call,
         (contract_id, "set_admin", admin, new_admin)
-            .to_scvec()
+            .try_into()
             .unwrap(),
     );
 }
@@ -547,6 +431,6 @@ pub fn set_admin(e: &mut Env, contract_id: &U256, admin: &Authorization, new_adm
 pub fn unfreeze(e: &mut Env, contract_id: &U256, admin: &Authorization, id: &Identifier) {
     e.invoke_contract(
         HostFunction::Call,
-        (contract_id, "unfreeze", admin, id).to_scvec().unwrap(),
+        (contract_id, "unfreeze", admin, id).try_into().unwrap(),
     );
 }

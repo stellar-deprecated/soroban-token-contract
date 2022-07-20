@@ -509,7 +509,7 @@ source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=acd83a8b#ac
 [[package]]
 name = "stellar-contract-macros"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=7ec1be4#7ec1be48bc384fb8a23ae089eef3c0034f5b8bb1"
+source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=7ec1be48#7ec1be48bc384fb8a23ae089eef3c0034f5b8bb1"
 dependencies = [
  "itertools",
  "proc-macro2",
@@ -521,7 +521,7 @@ dependencies = [
 [[package]]
 name = "stellar-contract-sdk"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=7ec1be4#7ec1be48bc384fb8a23ae089eef3c0034f5b8bb1"
+source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=7ec1be48#7ec1be48bc384fb8a23ae089eef3c0034f5b8bb1"
 dependencies = [
  "ed25519-dalek",
  "stellar-contract-env-guest",
@@ -540,7 +540,14 @@ dependencies = [
  "sha2 0.10.2",
  "stellar-contract-sdk",
  "stellar-token-contract",
- "stellar-xdr 0.0.0 (git+https://github.com/stellar/rs-stellar-xdr?rev=61129e16)",
+ "stellar-xdr 0.0.0",
+]
+
+[[package]]
+name = "stellar-xdr"
+version = "0.0.0"
+dependencies = [
+ "num-bigint",
 ]
 
 [[package]]
