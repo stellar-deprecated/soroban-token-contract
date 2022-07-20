@@ -11,14 +11,16 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = ["export"]
 export = []
-external = ["stellar-contract-sdk/testutils", "dep:ed25519-dalek", "dep:num-bigint", "dep:sha2", "dep:stellar-xdr"]
+external = ["stellar-contract-sdk/testutils", "dep:ed25519-dalek", "dep:num-bigint", "dep:sha2", "dep:stellar-xdr", "stellar-xdr?/num-bigint"]
 
 [dependencies]
 ed25519-dalek = { version = "1.0.1", optional = true }
 num-bigint = { version = "0.4", optional = true }
 sha2 = { version = "0.10.2", optional = true }
-stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "7ec1be4" }
-stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "61129e16", features = ["next", "std"], optional = true }
+stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "af42ac86" }
+# stellar-contract-sdk = { path = "../rs-stellar-contract-sdk/sdk" }
+stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "06b41ba4", features = ["next"], optional = true }
+# stellar-xdr = { path = "../rs-stellar-xdr", features = ["next"], optional = true }
 
 [dev-dependencies]
 stellar-token-contract = { path = ".", features = ["export", "external"] }
