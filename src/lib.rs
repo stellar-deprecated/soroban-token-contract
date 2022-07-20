@@ -13,4 +13,3 @@ pub mod external;
 mod nonce;
 pub mod public_types;
 mod storage_types;
-mod test;
