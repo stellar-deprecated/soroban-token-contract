@@ -266,7 +266,7 @@ pub fn register_test_contract(e: &Env, contract_id: &U256) {
         bin.push(*b);
     }
 
-    e.register_contract(bin.into(), crate::contract::Token{});
+    e.register_contract(bin.into(), crate::contract::Token {});
 }
 
 pub fn initialize(e: &mut Env, contract_id: &U256, admin: &Identifier) {
