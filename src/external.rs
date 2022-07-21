@@ -260,57 +260,13 @@ impl Message {
     }
 }
 
-macro_rules! contract_fn {
-    ($name:ident, $f:ident, $n:tt, $($i:tt),+) => {
-        pub fn $name(e: Env, args: &[RawVal]) -> RawVal {
-            if args.len() != $n {
-                panic!()
-            } else {
-                crate::contract::$f(e, $(args[$i]),+)
-            }
-        }
-    }
-}
-
-mod contract_fns {
-    use stellar_contract_sdk::{Env, RawVal};
-
-    contract_fn!(initialize, __initialize, 1, 0);
-    contract_fn!(nonce, __nonce, 1, 0);
-    contract_fn!(allowance, __allowance, 2, 0, 1);
-    contract_fn!(approve, __approve, 3, 0, 1, 2);
-    contract_fn!(balance, __balance, 1, 0);
-    contract_fn!(is_frozen, __is_frozen, 1, 0);
-    contract_fn!(xfer, __xfer, 3, 0, 1, 2);
-    contract_fn!(xfer_from, __xfer_from, 4, 0, 1, 2, 3);
-    contract_fn!(burn, __burn, 3, 0, 1, 2);
-    contract_fn!(freeze, __freeze, 2, 0, 1);
-    contract_fn!(mint, __mint, 3, 0, 1, 2);
-    contract_fn!(set_admin, __set_admin, 2, 0, 1);
-    contract_fn!(unfreeze, __unfreeze, 2, 0, 1);
-}
-
 pub fn register_test_contract(e: &Env, contract_id: &U256) {
     let mut bin = Binary::new(e);
     for b in contract_id {
         bin.push(*b);
     }
 
-    let mut tc = stellar_contract_sdk::TestContract::new();
-    tc.add_function("initialize", &contract_fns::initialize);
-    tc.add_function("nonce", &contract_fns::nonce);
-    tc.add_function("allowance", &contract_fns::allowance);
-    tc.add_function("approve", &contract_fns::approve);
-    tc.add_function("balance", &contract_fns::balance);
-    tc.add_function("is_frozen", &contract_fns::is_frozen);
-    tc.add_function("xfer", &contract_fns::xfer);
-    tc.add_function("xfer_from", &contract_fns::xfer_from);
-    tc.add_function("burn", &contract_fns::burn);
-    tc.add_function("freeze", &contract_fns::freeze);
-    tc.add_function("mint", &contract_fns::mint);
-    tc.add_function("set_admin", &contract_fns::set_admin);
-    tc.add_function("unfreeze", &contract_fns::unfreeze);
-    e.register_contract(bin.into(), tc);
+    e.register_contract(bin.into(), crate::contract::Token {});
 }
 
 pub fn initialize(e: &mut Env, contract_id: &U256, admin: &Identifier) {
