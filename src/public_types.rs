@@ -12,22 +12,14 @@ pub struct KeyedEd25519Signature {
 
 #[derive(Clone)]
 #[contracttype]
-pub struct Ed25519Authorization {
-    pub nonce: BigInt,
+pub struct KeyedEd25519Authorization {
+    pub public_key: U256,
     pub signature: U512,
 }
 
 #[derive(Clone)]
 #[contracttype]
-pub struct KeyedEd25519Authorization {
-    pub public_key: U256,
-    pub auth: Ed25519Authorization,
-}
-
-#[derive(Clone)]
-#[contracttype]
 pub struct AccountAuthorization {
-    pub nonce: BigInt,
     pub signatures: Vec<KeyedEd25519Signature>,
 }
 
@@ -42,7 +34,7 @@ pub struct KeyedAccountAuthorization {
 #[contracttype]
 pub enum Authorization {
     Contract,
-    Ed25519(Ed25519Authorization),
+    Ed25519(U512),
     Account(AccountAuthorization),
 }
 

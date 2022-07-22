@@ -15,23 +15,16 @@ fn generate_keypair() -> Keypair {
 }
 
 fn make_auth(kp: &Keypair, msg: &external::Message) -> external::Authorization {
-    use external::{Authorization, Ed25519Authorization};
     let signature = msg.sign(kp).unwrap();
-    Authorization::Ed25519(Ed25519Authorization {
-        nonce: msg.0.clone(),
-        signature,
-    })
+    external::Authorization::Ed25519(signature)
 }
 
 fn make_keyed_auth(kp: &Keypair, msg: &external::Message) -> external::KeyedAuthorization {
-    use external::{Ed25519Authorization, KeyedAuthorization, KeyedEd25519Authorization};
+    use external::{KeyedAuthorization, KeyedEd25519Authorization};
     let signature = msg.sign(kp).unwrap();
     KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
         public_key: kp.public.to_bytes(),
-        auth: Ed25519Authorization {
-            nonce: msg.0.clone(),
-            signature,
-        },
+        signature,
     })
 }
 
@@ -328,8 +321,6 @@ fn initialize_already_initialized() {
 #[test]
 #[should_panic] // TODO: Add expected
 fn set_admin_bad_signature() {
-    use external::{Authorization, Ed25519Authorization};
-
     let e = Env::with_empty_recording_storage();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
@@ -344,9 +335,6 @@ fn set_admin_bad_signature() {
 
     let mut signature: [u8; 64] = vec![0; 64].as_slice().try_into().unwrap();
     thread_rng().fill_bytes(&mut signature);
-    let auth = Authorization::Ed25519(Ed25519Authorization {
-        nonce: 0u64.into(),
-        signature,
-    });
+    let auth = external::Authorization::Ed25519(signature);
     external::set_admin(&mut token.0, &token.1, &auth, &admin2_id);
 }
