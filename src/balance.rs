@@ -20,7 +20,7 @@ pub fn receive_balance(e: &Env, id: Identifier, amount: BigInt) {
     let balance = read_balance(e, id.clone());
     let is_frozen = read_state(e, id.clone());
     if is_frozen {
-        panic!();
+        panic!("can't receive when frozen");
     }
     write_balance(e, id, balance + amount);
 }
@@ -28,8 +28,11 @@ pub fn receive_balance(e: &Env, id: Identifier, amount: BigInt) {
 pub fn spend_balance(e: &Env, id: Identifier, amount: BigInt) {
     let balance = read_balance(e, id.clone());
     let is_frozen = read_state(e, id.clone());
-    if is_frozen || balance < amount {
-        panic!();
+    if is_frozen {
+        panic!("can't spend when frozen");
+    }
+    if balance < amount {
+        panic!("insufficient balance");
     }
     write_balance(e, id, balance - amount);
 }

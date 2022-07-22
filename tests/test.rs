@@ -205,3 +205,77 @@ fn test() {
     assert_eq!(token.balance(&user3_id), 200u64.into());
     assert_eq!(token.nonce(&admin2_id), 3u64.into());
 }
+
+#[test]
+#[should_panic(expected = "insufficient balance")]
+fn xfer_insufficient_balance() {
+    let e = Env::with_empty_recording_storage();
+    let contract_id = generate_contract_id();
+    external::register_test_contract(&e, &contract_id);
+    let mut token = Token(e, contract_id.clone());
+
+    let admin1 = generate_keypair();
+    let user1 = generate_keypair();
+    let user2 = generate_keypair();
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
+    let user1_id = Identifier::Ed25519(user1.public.to_bytes());
+    let user2_id = Identifier::Ed25519(user2.public.to_bytes());
+
+    token.initialize(&admin1_id);
+
+    token.mint(&admin1, &user1_id, 1000u64.into());
+    assert_eq!(token.balance(&user1_id), 1000u64.into());
+    assert_eq!(token.nonce(&admin1_id), 1u64.into());
+
+    token.xfer(&user1, &user2_id, 1001u64.into());
+}
+
+#[test]
+#[should_panic(expected = "can't receive when frozen")]
+fn xfer_receive_frozen() {
+    let e = Env::with_empty_recording_storage();
+    let contract_id = generate_contract_id();
+    external::register_test_contract(&e, &contract_id);
+    let mut token = Token(e, contract_id.clone());
+
+    let admin1 = generate_keypair();
+    let user1 = generate_keypair();
+    let user2 = generate_keypair();
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
+    let user1_id = Identifier::Ed25519(user1.public.to_bytes());
+    let user2_id = Identifier::Ed25519(user2.public.to_bytes());
+
+    token.initialize(&admin1_id);
+
+    token.mint(&admin1, &user1_id, 1000u64.into());
+    assert_eq!(token.balance(&user1_id), 1000u64.into());
+    assert_eq!(token.nonce(&admin1_id), 1u64.into());
+
+    token.freeze(&admin1, &user2_id);
+    token.xfer(&user1, &user2_id, 1u64.into());
+}
+
+#[test]
+#[should_panic(expected = "can't spend when frozen")]
+fn xfer_spend_frozen() {
+    let e = Env::with_empty_recording_storage();
+    let contract_id = generate_contract_id();
+    external::register_test_contract(&e, &contract_id);
+    let mut token = Token(e, contract_id.clone());
+
+    let admin1 = generate_keypair();
+    let user1 = generate_keypair();
+    let user2 = generate_keypair();
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
+    let user1_id = Identifier::Ed25519(user1.public.to_bytes());
+    let user2_id = Identifier::Ed25519(user2.public.to_bytes());
+
+    token.initialize(&admin1_id);
+
+    token.mint(&admin1, &user1_id, 1000u64.into());
+    assert_eq!(token.balance(&user1_id), 1000u64.into());
+    assert_eq!(token.nonce(&admin1_id), 1u64.into());
+
+    token.freeze(&admin1, &user1_id);
+    token.xfer(&user1, &user2_id, 1u64.into());
+}
