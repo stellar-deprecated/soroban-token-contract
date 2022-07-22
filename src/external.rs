@@ -36,31 +36,9 @@ impl TryInto<ScVal> for Identifier {
 }
 
 #[derive(Clone)]
-pub struct Ed25519Authorization {
-    pub nonce: BigInt,
-    pub signature: U512,
-}
-
-impl TryInto<ScVal> for &Ed25519Authorization {
-    type Error = ();
-    fn try_into(self) -> Result<ScVal, Self::Error> {
-        let mut map = Vec::new();
-        map.push(ScMapEntry {
-            key: "nonce".try_into()?,
-            val: (&self.nonce).try_into()?,
-        });
-        map.push(ScMapEntry {
-            key: "signature".try_into()?,
-            val: (&self.signature).try_into()?,
-        });
-        Ok(ScVal::Object(Some(ScObject::Map(ScMap(map.try_into()?)))))
-    }
-}
-
-#[derive(Clone)]
 pub struct KeyedEd25519Authorization {
     pub public_key: U256,
-    pub auth: Ed25519Authorization,
+    pub signature: U512,
 }
 
 impl TryInto<ScVal> for &KeyedEd25519Authorization {
@@ -72,8 +50,8 @@ impl TryInto<ScVal> for &KeyedEd25519Authorization {
             val: (&self.public_key).try_into()?,
         });
         map.push(ScMapEntry {
-            key: "auth".try_into()?,
-            val: (&self.auth).try_into()?,
+            key: "signature".try_into()?,
+            val: (&self.signature).try_into()?,
         });
         Ok(ScVal::Object(Some(ScObject::Map(ScMap(map.try_into()?)))))
     }
@@ -82,7 +60,7 @@ impl TryInto<ScVal> for &KeyedEd25519Authorization {
 // TODO: Add other branches
 #[derive(Clone)]
 pub enum Authorization {
-    Ed25519(Ed25519Authorization),
+    Ed25519(U512),
 }
 
 impl TryInto<ScVal> for &Authorization {

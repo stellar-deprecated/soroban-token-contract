@@ -24,10 +24,10 @@ pub fn to_administrator_authorization(e: &Env, auth: Authorization) -> KeyedAuth
             }
             KeyedAuthorization::Contract
         }
-        (Identifier::Ed25519(admin_id), Authorization::Ed25519(ea)) => {
+        (Identifier::Ed25519(admin_id), Authorization::Ed25519(signature)) => {
             KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
                 public_key: admin_id,
-                auth: ea,
+                signature,
             })
         }
         (Identifier::Account(admin_id), Authorization::Account(aa)) => {
