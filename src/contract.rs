@@ -47,7 +47,7 @@ pub struct Token;
 impl TokenTrait for Token {
     fn initialize(e: Env, admin: Identifier) {
         if has_administrator(&e) {
-            panic!()
+            panic!("already initialized")
         }
         write_administrator(&e, admin);
     }

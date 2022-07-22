@@ -58,7 +58,7 @@ fn check_account_auth(
         // Cannot take multiple signatures from the same key
         if let Some(prev) = prev_pk {
             if prev >= sig.public_key {
-                panic!()
+                panic!("signature out of order")
             }
         }
 
@@ -74,7 +74,7 @@ fn check_account_auth(
     }
 
     if weight < threshold {
-        panic!()
+        panic!("insufficient signing weight")
     }
 }
 

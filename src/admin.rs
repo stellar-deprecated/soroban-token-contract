@@ -20,7 +20,7 @@ pub fn to_administrator_authorization(e: &Env, auth: Authorization) -> KeyedAuth
     match (admin, auth) {
         (Identifier::Contract(admin_id), Authorization::Contract) => {
             if admin_id != e.get_invoking_contract() {
-                panic!();
+                panic!("admin is not invoking contract");
             }
             KeyedAuthorization::Contract
         }
@@ -36,7 +36,7 @@ pub fn to_administrator_authorization(e: &Env, auth: Authorization) -> KeyedAuth
                 auth: aa,
             })
         }
-        _ => panic!(),
+        _ => panic!("unknown identifier type"),
     }
 }
 
