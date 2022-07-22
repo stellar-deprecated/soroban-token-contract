@@ -309,3 +309,18 @@ fn xfer_from_insufficient_allowance() {
 
     token.xfer_from(&user3, &user1_id, &user2_id, 101u64.into());
 }
+
+#[test]
+#[should_panic(expected = "already initialized")]
+fn initialize_already_initialized() {
+    let e = Env::with_empty_recording_storage();
+    let contract_id = generate_contract_id();
+    external::register_test_contract(&e, &contract_id);
+    let mut token = Token(e, contract_id.clone());
+
+    let admin1 = generate_keypair();
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
+
+    token.initialize(&admin1_id);
+    token.initialize(&admin1_id);
+}
