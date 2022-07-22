@@ -4,7 +4,6 @@ use std::vec::Vec;
 
 use ed25519_dalek::{Keypair, Signer};
 use num_bigint::BigInt;
-use sha2::Digest;
 use stellar_contract_sdk::xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal, WriteXdr};
 use stellar_contract_sdk::{Binary, Env, VariableLengthBinary};
 
@@ -251,7 +250,7 @@ impl Message {
         let mut buf = Vec::<u8>::new();
         let val: ScVal = self.try_into()?;
         val.write_xdr(&mut buf).map_err(|_| ())?;
-        Ok(kp.sign(sha2::Sha256::digest(&buf).as_slice()).to_bytes())
+        Ok(kp.sign(&buf).to_bytes())
     }
 }
 
