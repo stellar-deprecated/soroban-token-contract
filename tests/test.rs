@@ -1,8 +1,9 @@
 use ed25519_dalek::Keypair;
 use external::MessageWithoutNonce as ContractFn;
+use num_bigint::BigInt;
 use rand::{thread_rng, RngCore};
 use stellar_contract_sdk::Env;
-use stellar_token_contract::external;
+use stellar_token_contract::{external, external::Identifier};
 
 fn generate_contract_id() -> [u8; 32] {
     let mut id: [u8; 32] = Default::default();
@@ -29,9 +30,6 @@ fn make_keyed_auth(kp: &Keypair, msg: &external::Message) -> external::KeyedAuth
 }
 
 struct Token(Env, [u8; 32]);
-
-use num_bigint::BigInt;
-use stellar_token_contract::external::Identifier;
 
 impl Token {
     fn initialize(&mut self, admin: &Identifier) {
