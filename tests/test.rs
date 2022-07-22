@@ -324,3 +324,29 @@ fn initialize_already_initialized() {
     token.initialize(&admin1_id);
     token.initialize(&admin1_id);
 }
+
+#[test]
+#[should_panic] // TODO: Add expected
+fn set_admin_bad_signature() {
+    use external::{Authorization, Ed25519Authorization};
+
+    let e = Env::with_empty_recording_storage();
+    let contract_id = generate_contract_id();
+    external::register_test_contract(&e, &contract_id);
+    let mut token = Token(e, contract_id.clone());
+
+    let admin1 = generate_keypair();
+    let admin2 = generate_keypair();
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
+    let admin2_id = Identifier::Ed25519(admin2.public.to_bytes());
+
+    token.initialize(&admin1_id);
+
+    let mut signature: [u8; 64] = vec![0; 64].as_slice().try_into().unwrap();
+    thread_rng().fill_bytes(&mut signature);
+    let auth = Authorization::Ed25519(Ed25519Authorization {
+        nonce: 0u64.into(),
+        signature,
+    });
+    external::set_admin(&mut token.0, &token.1, &auth, &admin2_id);
+}
