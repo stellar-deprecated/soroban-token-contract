@@ -279,3 +279,33 @@ fn xfer_spend_frozen() {
     token.freeze(&admin1, &user1_id);
     token.xfer(&user1, &user2_id, 1u64.into());
 }
+
+#[test]
+#[should_panic(expected = "insufficient allowance")]
+fn xfer_from_insufficient_allowance() {
+    let e = Env::with_empty_recording_storage();
+    let contract_id = generate_contract_id();
+    external::register_test_contract(&e, &contract_id);
+    let mut token = Token(e, contract_id.clone());
+
+    let admin1 = generate_keypair();
+    let user1 = generate_keypair();
+    let user2 = generate_keypair();
+    let user3 = generate_keypair();
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
+    let user1_id = Identifier::Ed25519(user1.public.to_bytes());
+    let user2_id = Identifier::Ed25519(user2.public.to_bytes());
+    let user3_id = Identifier::Ed25519(user3.public.to_bytes());
+
+    token.initialize(&admin1_id);
+
+    token.mint(&admin1, &user1_id, 1000u64.into());
+    assert_eq!(token.balance(&user1_id), 1000u64.into());
+    assert_eq!(token.nonce(&admin1_id), 1u64.into());
+
+    token.approve(&user1, &user3_id, 100u64.into());
+    assert_eq!(token.allowance(&user1_id, &user3_id), 100u64.into());
+    assert_eq!(token.nonce(&user1_id), 1u64.into());
+
+    token.xfer_from(&user3, &user1_id, &user2_id, 101u64.into());
+}

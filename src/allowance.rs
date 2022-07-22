@@ -19,7 +19,7 @@ pub fn write_allowance(e: &Env, from: Identifier, spender: Identifier, amount: B
 pub fn spend_allowance(e: &Env, from: Identifier, spender: Identifier, amount: BigInt) {
     let allowance = read_allowance(e, from.clone(), spender.clone());
     if allowance < amount {
-        panic!();
+        panic!("insufficient allowance");
     }
     write_allowance(e, from, spender, allowance - amount);
 }
