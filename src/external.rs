@@ -1,4 +1,4 @@
-#![cfg(feature = "external")]
+#![cfg(feature = "testutils")]
 
 use std::vec::Vec;
 

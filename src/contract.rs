@@ -43,7 +43,7 @@ pub trait TokenTrait {
 
 pub struct Token;
 
-#[contractimpl(export_if = "export", tests_if = "external")]
+#[contractimpl(export_if = "export")]
 impl TokenTrait for Token {
     fn initialize(e: Env, admin: Identifier) {
         if has_administrator(&e) {
