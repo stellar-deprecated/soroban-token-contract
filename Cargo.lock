@@ -176,6 +176,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dyn-fmt"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2a0836c9bd73a9d3ca55b0effc5b1eedf96dd13ef994389bcac6d4d33c46188"
+
+[[package]]
 name = "ed25519"
 version = "1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -502,7 +508,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "stellar-contract-env-common"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=eb44fe13#eb44fe131ee9d16bb5b35527a1a115ec488e0c35"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=52344714#523447140c52857f310043a0b9fb5c8c678a9999"
 dependencies = [
  "static_assertions",
  "stellar-contract-env-macros",
@@ -512,17 +518,19 @@ dependencies = [
 [[package]]
 name = "stellar-contract-env-guest"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=eb44fe13#eb44fe131ee9d16bb5b35527a1a115ec488e0c35"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=52344714#523447140c52857f310043a0b9fb5c8c678a9999"
 dependencies = [
+ "static_assertions",
  "stellar-contract-env-common",
 ]
 
 [[package]]
 name = "stellar-contract-env-host"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=eb44fe13#eb44fe131ee9d16bb5b35527a1a115ec488e0c35"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=52344714#523447140c52857f310043a0b9fb5c8c678a9999"
 dependencies = [
  "backtrace",
+ "dyn-fmt",
  "ed25519-dalek",
  "hex",
  "im-rc",
@@ -540,7 +548,7 @@ dependencies = [
 [[package]]
 name = "stellar-contract-env-macros"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=eb44fe13#eb44fe131ee9d16bb5b35527a1a115ec488e0c35"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=52344714#523447140c52857f310043a0b9fb5c8c678a9999"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -551,12 +559,12 @@ dependencies = [
 [[package]]
 name = "stellar-contract-env-panic-handler-wasm32-unreachable"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=eb44fe13#eb44fe131ee9d16bb5b35527a1a115ec488e0c35"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=52344714#523447140c52857f310043a0b9fb5c8c678a9999"
 
 [[package]]
 name = "stellar-contract-macros"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=d279737#d27973797f67f16519949b75b8147e97ef12fe53"
+source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=11a0031d#11a0031dbba4a19fc57d92bf31ae8c2de67ef485"
 dependencies = [
  "darling",
  "itertools",
@@ -569,7 +577,7 @@ dependencies = [
 [[package]]
 name = "stellar-contract-sdk"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=d279737#d27973797f67f16519949b75b8147e97ef12fe53"
+source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=11a0031d#11a0031dbba4a19fc57d92bf31ae8c2de67ef485"
 dependencies = [
  "ed25519-dalek",
  "stellar-contract-env-guest",
