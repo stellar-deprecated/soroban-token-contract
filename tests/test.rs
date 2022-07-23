@@ -2,8 +2,8 @@ use ed25519_dalek::Keypair;
 use external::MessageWithoutNonce as ContractFn;
 use num_bigint::BigInt;
 use rand::{thread_rng, RngCore};
-use stellar_contract_sdk::Env;
-use stellar_token_contract::{external, external::Identifier};
+use stellar_contract_sdk::{Env, TryIntoVal};
+use stellar_token_contract::{external, public_types::Identifier};
 
 fn generate_contract_id() -> [u8; 32] {
     let mut id: [u8; 32] = Default::default();
@@ -45,7 +45,7 @@ impl Token {
     }
 
     fn approve(&mut self, from: &Keypair, spender: &Identifier, amount: BigInt) {
-        let from_id = Identifier::Ed25519(from.public.to_bytes());
+        let from_id = Identifier::Ed25519(from.public.to_bytes().try_into_val(&self.0).unwrap());
         let msg = external::Message(
             self.nonce(&from_id),
             ContractFn::Approve(spender.clone(), amount.clone()),
@@ -68,7 +68,7 @@ impl Token {
     }
 
     fn xfer(&mut self, from: &Keypair, to: &Identifier, amount: BigInt) {
-        let from_id = Identifier::Ed25519(from.public.to_bytes());
+        let from_id = Identifier::Ed25519(from.public.to_bytes().try_into_val(&self.0).unwrap());
         let msg = external::Message(
             self.nonce(&from_id),
             ContractFn::Transfer(to.clone(), amount.clone()),
@@ -83,7 +83,8 @@ impl Token {
     }
 
     fn xfer_from(&mut self, spender: &Keypair, from: &Identifier, to: &Identifier, amount: BigInt) {
-        let spender_id = Identifier::Ed25519(spender.public.to_bytes());
+        let spender_id =
+            Identifier::Ed25519(spender.public.to_bytes().try_into_val(&self.0).unwrap());
         let msg = external::Message(
             self.nonce(&spender_id),
             ContractFn::TransferFrom(from.clone(), to.clone(), amount.clone()),
@@ -99,7 +100,7 @@ impl Token {
     }
 
     fn burn(&mut self, admin: &Keypair, from: &Identifier, amount: BigInt) {
-        let admin_id = Identifier::Ed25519(admin.public.to_bytes());
+        let admin_id = Identifier::Ed25519(admin.public.to_bytes().try_into_val(&self.0).unwrap());
         let msg = external::Message(
             self.nonce(&admin_id),
             ContractFn::Burn(from.clone(), amount.clone()),
@@ -108,13 +109,13 @@ impl Token {
     }
 
     fn freeze(&mut self, admin: &Keypair, id: &Identifier) {
-        let admin_id = Identifier::Ed25519(admin.public.to_bytes());
+        let admin_id = Identifier::Ed25519(admin.public.to_bytes().try_into_val(&self.0).unwrap());
         let msg = external::Message(self.nonce(&admin_id), ContractFn::Freeze(id.clone()));
         external::freeze(&mut self.0, &self.1, &make_auth(admin, &msg), id);
     }
 
     fn mint(&mut self, admin: &Keypair, to: &Identifier, amount: BigInt) {
-        let admin_id = Identifier::Ed25519(admin.public.to_bytes());
+        let admin_id = Identifier::Ed25519(admin.public.to_bytes().try_into_val(&self.0).unwrap());
         let msg = external::Message(
             self.nonce(&admin_id),
             ContractFn::Mint(to.clone(), amount.clone()),
@@ -123,7 +124,7 @@ impl Token {
     }
 
     fn set_admin(&mut self, admin: &Keypair, new_admin: &Identifier) {
-        let admin_id = Identifier::Ed25519(admin.public.to_bytes());
+        let admin_id = Identifier::Ed25519(admin.public.to_bytes().try_into_val(&self.0).unwrap());
         let msg = external::Message(
             self.nonce(&admin_id),
             ContractFn::SetAdministrator(new_admin.clone()),
@@ -132,7 +133,7 @@ impl Token {
     }
 
     fn unfreeze(&mut self, admin: &Keypair, id: &Identifier) {
-        let admin_id = Identifier::Ed25519(admin.public.to_bytes());
+        let admin_id = Identifier::Ed25519(admin.public.to_bytes().try_into_val(&self.0).unwrap());
         let msg = external::Message(self.nonce(&admin_id), ContractFn::Unfreeze(id.clone()));
         external::unfreeze(&mut self.0, &self.1, &make_auth(admin, &msg), id);
     }
@@ -143,18 +144,18 @@ fn test() {
     let e = Env::with_empty_recording_storage();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
-    let mut token = Token(e, contract_id.clone());
+    let mut token = Token(e.clone(), contract_id.clone());
 
     let admin1 = generate_keypair();
     let admin2 = generate_keypair();
     let user1 = generate_keypair();
     let user2 = generate_keypair();
     let user3 = generate_keypair();
-    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
-    let admin2_id = Identifier::Ed25519(admin2.public.to_bytes());
-    let user1_id = Identifier::Ed25519(user1.public.to_bytes());
-    let user2_id = Identifier::Ed25519(user2.public.to_bytes());
-    let user3_id = Identifier::Ed25519(user3.public.to_bytes());
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes().try_into_val(&e).unwrap());
+    let admin2_id = Identifier::Ed25519(admin2.public.to_bytes().try_into_val(&e).unwrap());
+    let user1_id = Identifier::Ed25519(user1.public.to_bytes().try_into_val(&e).unwrap());
+    let user2_id = Identifier::Ed25519(user2.public.to_bytes().try_into_val(&e).unwrap());
+    let user3_id = Identifier::Ed25519(user3.public.to_bytes().try_into_val(&e).unwrap());
 
     token.initialize(&admin1_id);
 
@@ -203,14 +204,14 @@ fn xfer_insufficient_balance() {
     let e = Env::with_empty_recording_storage();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
-    let mut token = Token(e, contract_id.clone());
+    let mut token = Token(e.clone(), contract_id.clone());
 
     let admin1 = generate_keypair();
     let user1 = generate_keypair();
     let user2 = generate_keypair();
-    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
-    let user1_id = Identifier::Ed25519(user1.public.to_bytes());
-    let user2_id = Identifier::Ed25519(user2.public.to_bytes());
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes().try_into_val(&e).unwrap());
+    let user1_id = Identifier::Ed25519(user1.public.to_bytes().try_into_val(&e).unwrap());
+    let user2_id = Identifier::Ed25519(user2.public.to_bytes().try_into_val(&e).unwrap());
 
     token.initialize(&admin1_id);
 
@@ -227,14 +228,14 @@ fn xfer_receive_frozen() {
     let e = Env::with_empty_recording_storage();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
-    let mut token = Token(e, contract_id.clone());
+    let mut token = Token(e.clone(), contract_id.clone());
 
     let admin1 = generate_keypair();
     let user1 = generate_keypair();
     let user2 = generate_keypair();
-    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
-    let user1_id = Identifier::Ed25519(user1.public.to_bytes());
-    let user2_id = Identifier::Ed25519(user2.public.to_bytes());
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes().try_into_val(&e).unwrap());
+    let user1_id = Identifier::Ed25519(user1.public.to_bytes().try_into_val(&e).unwrap());
+    let user2_id = Identifier::Ed25519(user2.public.to_bytes().try_into_val(&e).unwrap());
 
     token.initialize(&admin1_id);
 
@@ -252,14 +253,14 @@ fn xfer_spend_frozen() {
     let e = Env::with_empty_recording_storage();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
-    let mut token = Token(e, contract_id.clone());
+    let mut token = Token(e.clone(), contract_id.clone());
 
     let admin1 = generate_keypair();
     let user1 = generate_keypair();
     let user2 = generate_keypair();
-    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
-    let user1_id = Identifier::Ed25519(user1.public.to_bytes());
-    let user2_id = Identifier::Ed25519(user2.public.to_bytes());
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes().try_into_val(&e).unwrap());
+    let user1_id = Identifier::Ed25519(user1.public.to_bytes().try_into_val(&e).unwrap());
+    let user2_id = Identifier::Ed25519(user2.public.to_bytes().try_into_val(&e).unwrap());
 
     token.initialize(&admin1_id);
 
@@ -277,16 +278,16 @@ fn xfer_from_insufficient_allowance() {
     let e = Env::with_empty_recording_storage();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
-    let mut token = Token(e, contract_id.clone());
+    let mut token = Token(e.clone(), contract_id.clone());
 
     let admin1 = generate_keypair();
     let user1 = generate_keypair();
     let user2 = generate_keypair();
     let user3 = generate_keypair();
-    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
-    let user1_id = Identifier::Ed25519(user1.public.to_bytes());
-    let user2_id = Identifier::Ed25519(user2.public.to_bytes());
-    let user3_id = Identifier::Ed25519(user3.public.to_bytes());
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes().try_into_val(&e).unwrap());
+    let user1_id = Identifier::Ed25519(user1.public.to_bytes().try_into_val(&e).unwrap());
+    let user2_id = Identifier::Ed25519(user2.public.to_bytes().try_into_val(&e).unwrap());
+    let user3_id = Identifier::Ed25519(user3.public.to_bytes().try_into_val(&e).unwrap());
 
     token.initialize(&admin1_id);
 
@@ -307,10 +308,10 @@ fn initialize_already_initialized() {
     let e = Env::with_empty_recording_storage();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
-    let mut token = Token(e, contract_id.clone());
+    let mut token = Token(e.clone(), contract_id.clone());
 
     let admin1 = generate_keypair();
-    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes().try_into_val(&e).unwrap());
 
     token.initialize(&admin1_id);
     token.initialize(&admin1_id);
@@ -322,12 +323,12 @@ fn set_admin_bad_signature() {
     let e = Env::with_empty_recording_storage();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
-    let mut token = Token(e, contract_id.clone());
+    let mut token = Token(e.clone(), contract_id.clone());
 
     let admin1 = generate_keypair();
     let admin2 = generate_keypair();
-    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
-    let admin2_id = Identifier::Ed25519(admin2.public.to_bytes());
+    let admin1_id = Identifier::Ed25519(admin1.public.to_bytes().try_into_val(&e).unwrap());
+    let admin2_id = Identifier::Ed25519(admin2.public.to_bytes().try_into_val(&e).unwrap());
 
     token.initialize(&admin1_id);
 

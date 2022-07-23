@@ -7,33 +7,10 @@ use num_bigint::BigInt;
 use stellar_contract_sdk::xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal, WriteXdr};
 use stellar_contract_sdk::{Binary, Env, VariableLengthBinary};
 
+use crate::public_types::Identifier;
+
 pub type U256 = [u8; 32];
 pub type U512 = [u8; 64];
-
-#[derive(Clone)]
-pub enum Identifier {
-    Contract(U256),
-    Ed25519(U256),
-    Account(U256),
-}
-
-impl TryInto<ScVal> for &Identifier {
-    type Error = ();
-    fn try_into(self) -> Result<ScVal, Self::Error> {
-        match self {
-            Identifier::Contract(x) => ("Contract", x).try_into(),
-            Identifier::Ed25519(x) => ("Ed25519", x).try_into(),
-            Identifier::Account(x) => ("Account", x).try_into(),
-        }
-    }
-}
-
-impl TryInto<ScVal> for Identifier {
-    type Error = ();
-    fn try_into(self) -> Result<ScVal, Self::Error> {
-        (&self).try_into()
-    }
-}
 
 #[derive(Clone)]
 pub struct KeyedEd25519Authorization {
