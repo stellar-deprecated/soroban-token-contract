@@ -1,4 +1,94 @@
 use ed25519_dalek::Keypair;
+use rand::{thread_rng, RngCore};
+use stellar_contract_sdk::testutils::ed25519::Sign as _;
+use stellar_contract_sdk::xdr::HostFunction;
+use stellar_contract_sdk::{BigInt, Env, EnvVal, IntoEnvVal, TryIntoVal, Vec};
+use stellar_token_contract::external;
+use stellar_token_contract::public_types::{
+    Identifier, Authorization, Message, MessageV0,
+};
+
+fn generate_contract_id() -> [u8; 32] {
+    let mut id: [u8; 32] = Default::default();
+    thread_rng().fill_bytes(&mut id);
+    id
+}
+
+fn generate_keypair() -> Keypair {
+    Keypair::generate(&mut thread_rng())
+}
+
+fn to_ed25519(e: &Env, kp: &Keypair) -> Identifier {
+    Identifier::Ed25519(kp.public.to_bytes().try_into_val(e).unwrap())
+}
+
+struct Token(Env, [u8; 32]);
+
+impl Token {
+    pub fn initialize(&mut self, admin: &Identifier) {
+        self.0.invoke_contract(
+            HostFunction::Call,
+            (self.1, "initialize", admin).try_into().unwrap(),
+        );
+    }
+
+    pub fn nonce(&mut self, id: &Identifier) -> BigInt {
+        self.0
+            .invoke_contract(
+                HostFunction::Call,
+                (self.1, "nonce", id).try_into().unwrap(),
+            )
+            .try_into_val(&self.0)
+            .unwrap()
+    }
+
+    pub fn balance(&mut self, id: &Identifier) -> BigInt {
+        self.0
+            .invoke_contract(
+                HostFunction::Call,
+                (self.1, "balance", id).try_into().unwrap(),
+            )
+            .try_into_val(&self.0)
+            .unwrap()
+    }
+
+    pub fn mint(&mut self, admin: &Keypair, to: &Identifier, amount: &BigInt) {
+        let mut args: Vec<EnvVal> = Vec::new(&self.0);
+        args.push(to.clone().into_env_val(&self.0));
+        args.push(amount.clone().into_env_val(&self.0));
+        let msg = Message::V0(MessageV0 {
+            nonce: self.nonce(&to_ed25519(&self.0, admin)),
+            domain: 5u32, // TODO: Use enum
+            parameters: args,
+        });
+        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().try_into_val(&self.0).unwrap());
+        self.0.invoke_contract(
+            HostFunction::Call,
+            (self.1, "mint", auth, to, amount).try_into().unwrap(),
+        );
+    }
+}
+
+#[test]
+fn test() {
+    let e: Env = Default::default();
+    let contract_id = generate_contract_id();
+    external::register_test_contract(&e, &contract_id);
+    let mut token = Token(e.clone(), contract_id.clone());
+
+    let admin1 = generate_keypair();
+    let admin1_id = to_ed25519(&e, &admin1);
+    let user1 = generate_keypair();
+    let user1_id = to_ed25519(&e, &user1);
+
+    token.initialize(&admin1_id);
+
+    token.mint(&admin1, &user1_id, &BigInt::from_u32(&e, 1000));
+    assert!(token.balance(&user1_id) == BigInt::from_u32(&e, 1000));
+    assert!(token.nonce(&admin1_id) == BigInt::from_u32(&e, 1));
+}
+
+/*use ed25519_dalek::Keypair;
 use external::MessageWithoutNonce as ContractFn;
 use num_bigint::BigInt;
 use rand::{thread_rng, RngCore};
@@ -373,4 +463,4 @@ fn decimal_is_over_max() {
     let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
 
     token.initialize(&admin1_id, u32::from(u8::MAX) + 1, "name", "symbol");
-}
+}*/
