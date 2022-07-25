@@ -4,6 +4,7 @@ use crate::public_types::{
     MessageV0, U256,
 };
 use stellar_contract_sdk::{Env, EnvVal};
+use stellar_contract_sdk::serde::Serialize;
 
 #[repr(u32)]
 pub enum Domain {
@@ -28,7 +29,7 @@ fn check_ed25519_auth(
         domain: domain as u32,
         parameters: parameters.try_into().unwrap(),
     };
-    let msg_bin = e.serialize_to_binary(Message::V0(msg));
+    let msg_bin = Message::V0(msg).serialize(e);
 
     e.verify_sig_ed25519(auth.signature.into(), auth.public_key.into(), msg_bin);
 }
@@ -47,7 +48,7 @@ fn check_account_auth(
         domain: domain as u32,
         parameters: parameters.try_into().unwrap(),
     };
-    let msg_bin = e.serialize_to_binary(Message::V0(msg));
+    let msg_bin = Message::V0(msg).serialize(e);
 
     let threshold = e.account_get_medium_threshold(acc_id.clone());
     let mut weight = 0u32;
