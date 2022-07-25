@@ -1,5 +1,19 @@
 #![cfg(feature = "testutils")]
 
+use stellar_contract_sdk::{Binary, Env};
+
+pub type U256 = [u8; 32];
+
+pub fn register_test_contract(e: &Env, contract_id: &U256) {
+    let mut bin = Binary::new(e);
+    for b in contract_id {
+        bin.push(*b);
+    }
+
+    e.register_contract(bin.into(), crate::contract::Token {});
+}
+
+/*
 use std::vec::Vec;
 
 use ed25519_dalek::{Keypair, Signer};
@@ -385,3 +399,4 @@ pub fn unfreeze(e: &mut Env, contract_id: &U256, admin: &Authorization, id: &Ide
         (contract_id, "unfreeze", admin, id).try_into().unwrap(),
     );
 }
+*/
