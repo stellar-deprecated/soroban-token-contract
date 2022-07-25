@@ -10,6 +10,7 @@ mod balance;
 mod contract;
 mod cryptography;
 pub mod external;
+mod metadata;
 mod nonce;
 pub mod public_types;
 mod storage_types;
