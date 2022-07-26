@@ -1,15 +1,14 @@
 use crate::storage_types::DataKey;
 use stellar_contract_sdk::{Env, Vec};
 
-pub fn read_decimal(e: &Env) -> u8 {
+pub fn read_decimal(e: &Env) -> u32 {
     let key = DataKey::Decimals;
-    //TODO:should we return a default if entry doesn't exist
     e.get_contract_data(key.clone())
 }
 
 pub fn write_decimal(e: &Env, d: u8) {
     let key = DataKey::Decimals;
-    e.put_contract_data(key, d)
+    e.put_contract_data(key, u32::from(d))
 }
 
 pub fn read_name(e: &Env) -> Vec<u8> {

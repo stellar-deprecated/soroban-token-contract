@@ -4,6 +4,7 @@ use num_bigint::BigInt;
 use rand::{thread_rng, RngCore};
 use stellar_contract_sdk::Env;
 use stellar_token_contract::{external, external::Identifier};
+use stellar_xdr::HostFunction;
 
 fn generate_contract_id() -> [u8; 32] {
     let mut id: [u8; 32] = Default::default();
@@ -32,9 +33,9 @@ fn make_keyed_auth(kp: &Keypair, msg: &external::Message) -> external::KeyedAuth
 struct Token(Env, [u8; 32]);
 
 impl Token {
-    fn initialize(&mut self, admin: &Identifier, decimal: u32, name: &str, symbol: &str) {
-        let n = stellar_contract_sdk::Vec::from_slice(&mut self.0, name.as_bytes());
-        let s = stellar_contract_sdk::Vec::from_slice(&mut self.0, symbol.as_bytes());
+    fn initialize(&mut self, admin: &Identifier, decimal: u8, name: &str, symbol: &str) {
+        let n = stellar_contract_sdk::Vec::from_slice(&self.0, name.as_bytes());
+        let s = stellar_contract_sdk::Vec::from_slice(&self.0, symbol.as_bytes());
         external::initialize(&mut self.0, &self.1, admin, &decimal, &n, &s);
     }
 
@@ -364,13 +365,26 @@ fn set_admin_bad_signature() {
 #[test]
 #[should_panic(expected = "Decimal must fit in a u8")]
 fn decimal_is_over_max() {
-    let e = Env::with_empty_recording_storage();
+    let mut e = Env::with_empty_recording_storage();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
-    let mut token = Token(e, contract_id.clone());
 
     let admin1 = generate_keypair();
     let admin1_id = Identifier::Ed25519(admin1.public.to_bytes());
 
-    token.initialize(&admin1_id, u32::from(u8::MAX) + 1, "name", "symbol");
+    let n = stellar_contract_sdk::Vec::from_slice(&e, "name".as_bytes());
+    let s = stellar_contract_sdk::Vec::from_slice(&e, "symbol".as_bytes());
+    e.invoke_contract(
+        HostFunction::Call,
+        (
+            contract_id,
+            "initialize",
+            &admin1_id,
+            u32::from(u8::MAX) + 1,
+            n,
+            s,
+        )
+            .try_into()
+            .unwrap(),
+    );
 }

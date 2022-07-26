@@ -43,7 +43,7 @@ pub trait TokenTrait {
 
     fn unfreeze(e: Env, admin: Authorization, id: Identifier);
 
-    fn decimals(e: Env) -> u8;
+    fn decimals(e: Env) -> u32;
 
     fn name(e: Env) -> Vec<u8>;
 
@@ -173,7 +173,7 @@ impl TokenTrait for Token {
         write_state(&e, id, false);
     }
 
-    fn decimals(e: Env) -> u8 {
+    fn decimals(e: Env) -> u32 {
         read_decimal(&e)
     }
 
