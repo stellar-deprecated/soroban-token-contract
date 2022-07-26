@@ -1,7 +1,7 @@
-use stellar_contract_sdk::{contracttype, ArrayBinary, BigInt, Env, EnvVal, IntoEnvVal, Vec};
+use stellar_contract_sdk::{contracttype, BigInt, Env, EnvVal, FixedBinary, IntoEnvVal, Vec};
 
-pub type U256 = ArrayBinary<32>;
-pub type U512 = ArrayBinary<64>;
+pub type U256 = FixedBinary<32>;
+pub type U512 = FixedBinary<64>;
 
 #[derive(Clone)]
 #[contracttype]
