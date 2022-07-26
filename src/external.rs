@@ -245,20 +245,13 @@ pub fn initialize(
     e: &mut Env,
     contract_id: &U256,
     admin: &Identifier,
-    decimal: &u8,
+    decimal: &u32,
     name: &stellar_contract_sdk::Vec<u8>,
     symbol: &stellar_contract_sdk::Vec<u8>,
 ) {
     e.invoke_contract(
         HostFunction::Call,
-        (
-            contract_id,
-            "initialize",
-            admin,
-            u32::from(decimal.clone()),
-            name,
-            symbol,
-        )
+        (contract_id, "initialize", admin, decimal, name, symbol)
             .try_into()
             .unwrap(),
     );
