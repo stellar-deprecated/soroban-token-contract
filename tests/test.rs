@@ -2,7 +2,7 @@ use ed25519_dalek::Keypair;
 use external::MessageWithoutNonce as ContractFn;
 use num_bigint::BigInt;
 use rand::{thread_rng, RngCore};
-use stellar_contract_sdk::Env;
+use stellar_contract_sdk::{Binary, Env};
 use stellar_token_contract::{external, external::Identifier};
 
 fn generate_contract_id() -> [u8; 32] {
@@ -33,8 +33,8 @@ struct Token(Env, [u8; 32]);
 
 impl Token {
     fn initialize(&mut self, admin: &Identifier, decimal: u32, name: &str, symbol: &str) {
-        let n = stellar_contract_sdk::Vec::from_slice(&mut self.0, name.as_bytes());
-        let s = stellar_contract_sdk::Vec::from_slice(&mut self.0, symbol.as_bytes());
+        let n = Binary::from_slice(&mut self.0, name.as_bytes());
+        let s = Binary::from_slice(&mut self.0, symbol.as_bytes());
         external::initialize(&mut self.0, &self.1, admin, &decimal, &n, &s);
     }
 
@@ -143,11 +143,11 @@ impl Token {
         external::decimals(&mut self.0, &self.1)
     }
 
-    fn name(&mut self) -> stellar_contract_sdk::Vec<u8> {
+    fn name(&mut self) -> Binary {
         external::name(&mut self.0, &self.1)
     }
 
-    fn symbol(&mut self) -> stellar_contract_sdk::Vec<u8> {
+    fn symbol(&mut self) -> Binary {
         external::symbol(&mut self.0, &self.1)
     }
 }
@@ -160,8 +160,8 @@ fn test() {
 
     let name = "name";
     let symbol = "symbol";
-    let name_vec = stellar_contract_sdk::Vec::from_slice(&e, name.as_bytes());
-    let symbol_vec = stellar_contract_sdk::Vec::from_slice(&e, symbol.as_bytes());
+    let name_bin = Binary::from_slice(&e, name.as_bytes());
+    let symbol_bin = Binary::from_slice(&e, symbol.as_bytes());
 
     let mut token = Token(e, contract_id.clone());
 
@@ -179,8 +179,8 @@ fn test() {
     token.initialize(&admin1_id, 10, name, symbol);
 
     assert_eq!(token.decimals(), 10);
-    assert_eq!(token.name(), name_vec);
-    assert_eq!(token.symbol(), symbol_vec);
+    assert_eq!(token.name(), name_bin);
+    assert_eq!(token.symbol(), symbol_bin);
 
     token.mint(&admin1, &user1_id, 1000u64.into());
     assert_eq!(token.balance(&user1_id), 1000u64.into());
@@ -364,7 +364,7 @@ fn set_admin_bad_signature() {
 #[test]
 #[should_panic(expected = "Decimal must fit in a u8")]
 fn decimal_is_over_max() {
-    let mut e = Default::default();
+    let e = Default::default();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
     let mut token = Token(e, contract_id.clone());

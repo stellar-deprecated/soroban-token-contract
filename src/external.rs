@@ -246,8 +246,8 @@ pub fn initialize(
     contract_id: &U256,
     admin: &Identifier,
     decimal: &u32,
-    name: &stellar_contract_sdk::Vec<u8>,
-    symbol: &stellar_contract_sdk::Vec<u8>,
+    name: &Binary,
+    symbol: &Binary,
 ) {
     e.invoke_contract(
         HostFunction::Call,
@@ -404,7 +404,7 @@ pub fn decimals(e: &mut Env, contract_id: &U256) -> u32 {
     .unwrap()
 }
 
-pub fn name(e: &mut Env, contract_id: &U256) -> stellar_contract_sdk::Vec<u8> {
+pub fn name(e: &mut Env, contract_id: &U256) -> Binary {
     e.invoke_contract(
         HostFunction::Call,
         (contract_id, "name").try_into().unwrap(),
@@ -413,7 +413,7 @@ pub fn name(e: &mut Env, contract_id: &U256) -> stellar_contract_sdk::Vec<u8> {
     .unwrap()
 }
 
-pub fn symbol(e: &mut Env, contract_id: &U256) -> stellar_contract_sdk::Vec<u8> {
+pub fn symbol(e: &mut Env, contract_id: &U256) -> Binary {
     e.invoke_contract(
         HostFunction::Call,
         (contract_id, "symbol").try_into().unwrap(),
