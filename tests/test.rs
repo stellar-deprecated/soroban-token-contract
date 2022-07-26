@@ -1,5 +1,49 @@
 use ed25519_dalek::Keypair;
 use rand::{thread_rng, RngCore};
+use stellar_contract_sdk::{Binary, Env, TryIntoVal};
+use stellar_token_contract::external;
+use stellar_token_contract::public_types::Identifier;
+
+fn generate_contract_id() -> [u8; 32] {
+    let mut id: [u8; 32] = Default::default();
+    thread_rng().fill_bytes(&mut id);
+    id
+}
+
+fn generate_keypair() -> Keypair {
+    Keypair::generate(&mut thread_rng())
+}
+
+fn to_ed25519(e: &Env, kp: &Keypair) -> Identifier {
+    Identifier::Ed25519(kp.public.to_bytes().try_into_val(e).unwrap())
+}
+
+struct Token(Env, [u8; 32]);
+
+impl Token {
+    pub fn initialize(&mut self, admin: &Identifier, decimals: u32, name: &str, symbol: &str) {
+        let contract_id: Binary = Binary::from_array(&self.0, self.1);
+        let name: Binary = name.into_val(&self.0);
+    }
+}
+
+#[test]
+fn test() {
+    let e: Env = Default::default();
+    let contract_id = generate_contract_id();
+    external::register_test_contract(&e, &contract_id);
+    let mut token = Token(e.clone(), contract_id.clone());
+
+    let admin1 = generate_keypair();
+    let admin1_id = to_ed25519(&e, &admin1);
+    let user1 = generate_keypair();
+    let user1_id = to_ed25519(&e, &user1);
+
+    token.initialize(&admin1_id, 7, "name", "symbol");
+}
+
+/*use ed25519_dalek::Keypair;
+use rand::{thread_rng, RngCore};
 use stellar_contract_sdk::testutils::ed25519::Sign as _;
 use stellar_contract_sdk::xdr::HostFunction;
 use stellar_contract_sdk::{BigInt, Env, EnvVal, IntoEnvVal, TryIntoVal, Vec};
@@ -86,7 +130,7 @@ fn test() {
     token.mint(&admin1, &user1_id, &BigInt::from_u32(&e, 1000));
     assert!(token.balance(&user1_id) == BigInt::from_u32(&e, 1000));
     assert!(token.nonce(&admin1_id) == BigInt::from_u32(&e, 1));
-}
+}*/
 
 /*use ed25519_dalek::Keypair;
 use external::MessageWithoutNonce as ContractFn;
