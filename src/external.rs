@@ -249,7 +249,7 @@ pub fn initialize(
     name: &Binary,
     symbol: &Binary,
 ) {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "initialize", admin, decimal, name, symbol)
             .try_into()
@@ -258,7 +258,7 @@ pub fn initialize(
 }
 
 pub fn nonce(e: &mut Env, contract_id: &U256, id: &Identifier) -> BigInt {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "nonce", id).try_into().unwrap(),
     )
@@ -272,7 +272,7 @@ pub fn allowance(
     from: &Identifier,
     spender: &Identifier,
 ) -> BigInt {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "allowance", from, spender)
             .try_into()
@@ -289,7 +289,7 @@ pub fn approve(
     spender: &Identifier,
     amount: &BigInt,
 ) {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "approve", from, spender, amount)
             .try_into()
@@ -298,7 +298,7 @@ pub fn approve(
 }
 
 pub fn balance(e: &mut Env, contract_id: &U256, id: &Identifier) -> BigInt {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "balance", id).try_into().unwrap(),
     )
@@ -307,7 +307,7 @@ pub fn balance(e: &mut Env, contract_id: &U256, id: &Identifier) -> BigInt {
 }
 
 pub fn is_frozen(e: &mut Env, contract_id: &U256, id: &Identifier) -> bool {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "is_frozen", id).try_into().unwrap(),
     )
@@ -322,7 +322,7 @@ pub fn xfer(
     to: &Identifier,
     amount: &BigInt,
 ) {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "xfer", from, to, amount).try_into().unwrap(),
     );
@@ -336,7 +336,7 @@ pub fn xfer_from(
     to: &Identifier,
     amount: &BigInt,
 ) {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "xfer_from", spender, from, to, amount)
             .try_into()
@@ -351,7 +351,7 @@ pub fn burn(
     from: &Identifier,
     amount: &BigInt,
 ) {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "burn", admin, from, amount)
             .try_into()
@@ -360,7 +360,7 @@ pub fn burn(
 }
 
 pub fn freeze(e: &mut Env, contract_id: &U256, admin: &Authorization, id: &Identifier) {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "freeze", admin, id).try_into().unwrap(),
     );
@@ -373,14 +373,14 @@ pub fn mint(
     to: &Identifier,
     amount: &BigInt,
 ) {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "mint", admin, to, amount).try_into().unwrap(),
     );
 }
 
 pub fn set_admin(e: &mut Env, contract_id: &U256, admin: &Authorization, new_admin: &Identifier) {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "set_admin", admin, new_admin)
             .try_into()
@@ -389,14 +389,14 @@ pub fn set_admin(e: &mut Env, contract_id: &U256, admin: &Authorization, new_adm
 }
 
 pub fn unfreeze(e: &mut Env, contract_id: &U256, admin: &Authorization, id: &Identifier) {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "unfreeze", admin, id).try_into().unwrap(),
     );
 }
 
 pub fn decimals(e: &mut Env, contract_id: &U256) -> u32 {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "decimals").try_into().unwrap(),
     )
@@ -405,7 +405,7 @@ pub fn decimals(e: &mut Env, contract_id: &U256) -> u32 {
 }
 
 pub fn name(e: &mut Env, contract_id: &U256) -> Binary {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "name").try_into().unwrap(),
     )
@@ -414,7 +414,7 @@ pub fn name(e: &mut Env, contract_id: &U256) -> Binary {
 }
 
 pub fn symbol(e: &mut Env, contract_id: &U256) -> Binary {
-    e.invoke_contract(
+    e.invoke_contract_external(
         HostFunction::Call,
         (contract_id, "symbol").try_into().unwrap(),
     )
