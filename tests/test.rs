@@ -365,7 +365,7 @@ fn set_admin_bad_signature() {
 #[test]
 #[should_panic(expected = "Decimal must fit in a u8")]
 fn decimal_is_over_max() {
-    let mut e = Env::with_empty_recording_storage();
+    let mut e = Default::default();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
 
