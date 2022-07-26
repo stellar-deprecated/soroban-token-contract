@@ -3,12 +3,15 @@ use crate::allowance::{read_allowance, spend_allowance, write_allowance};
 use crate::balance::{read_balance, receive_balance, spend_balance};
 use crate::balance::{read_state, write_state};
 use crate::cryptography::{check_auth, Domain};
+use crate::metadata::{
+    read_decimal, read_name, read_symbol, write_decimal, write_name, write_symbol,
+};
 use crate::nonce::read_nonce;
 use crate::public_types::{Authorization, Identifier, KeyedAuthorization};
-use stellar_contract_sdk::{contractimpl, BigInt, Env, IntoEnvVal};
+use stellar_contract_sdk::{contractimpl, BigInt, Binary, Env, IntoEnvVal};
 
 pub trait TokenTrait {
-    fn initialize(e: Env, admin: Identifier);
+    fn initialize(e: Env, admin: Identifier, decimal: u32, name: Binary, symbol: Binary);
 
     fn nonce(e: Env, id: Identifier) -> BigInt;
 
@@ -39,17 +42,27 @@ pub trait TokenTrait {
     fn set_admin(e: Env, admin: Authorization, new_admin: Identifier);
 
     fn unfreeze(e: Env, admin: Authorization, id: Identifier);
+
+    fn decimals(e: Env) -> u32;
+
+    fn name(e: Env) -> Binary;
+
+    fn symbol(e: Env) -> Binary;
 }
 
 pub struct Token;
 
 #[contractimpl(export_if = "export")]
 impl TokenTrait for Token {
-    fn initialize(e: Env, admin: Identifier) {
+    fn initialize(e: Env, admin: Identifier, decimal: u32, name: Binary, symbol: Binary) {
         if has_administrator(&e) {
             panic!("already initialized")
         }
         write_administrator(&e, admin);
+
+        write_decimal(&e, u8::try_from(decimal).expect("Decimal must fit in a u8"));
+        write_name(&e, name);
+        write_symbol(&e, symbol);
     }
 
     fn nonce(e: Env, id: Identifier) -> BigInt {
@@ -158,5 +171,17 @@ impl TokenTrait for Token {
         let auth = to_administrator_authorization(&e, admin);
         check_auth(&e, auth, Domain::Unfreeze, (id.clone(),).into_env_val(&e));
         write_state(&e, id, false);
+    }
+
+    fn decimals(e: Env) -> u32 {
+        read_decimal(&e)
+    }
+
+    fn name(e: Env) -> Binary {
+        read_name(&e)
+    }
+
+    fn symbol(e: Env) -> Binary {
+        read_symbol(&e)
     }
 }

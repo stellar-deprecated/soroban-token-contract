@@ -5,7 +5,7 @@ use std::vec::Vec;
 use ed25519_dalek::{Keypair, Signer};
 use num_bigint::BigInt;
 use stellar_contract_sdk::xdr::{HostFunction, ScMap, ScMapEntry, ScObject, ScVal, WriteXdr};
-use stellar_contract_sdk::{Binary, Env};
+use stellar_contract_sdk::{Binary, Env, TryIntoVal};
 
 pub type U256 = [u8; 32];
 pub type U512 = [u8; 64];
@@ -241,10 +241,19 @@ pub fn register_test_contract(e: &Env, contract_id: &U256) {
     e.register_contract(bin.into(), crate::contract::Token {});
 }
 
-pub fn initialize(e: &mut Env, contract_id: &U256, admin: &Identifier) {
+pub fn initialize(
+    e: &mut Env,
+    contract_id: &U256,
+    admin: &Identifier,
+    decimal: &u32,
+    name: &Binary,
+    symbol: &Binary,
+) {
     e.invoke_contract(
         HostFunction::Call,
-        (contract_id, "initialize", admin).try_into().unwrap(),
+        (contract_id, "initialize", admin, decimal, name, symbol)
+            .try_into()
+            .unwrap(),
     );
 }
 
@@ -384,4 +393,31 @@ pub fn unfreeze(e: &mut Env, contract_id: &U256, admin: &Authorization, id: &Ide
         HostFunction::Call,
         (contract_id, "unfreeze", admin, id).try_into().unwrap(),
     );
+}
+
+pub fn decimals(e: &mut Env, contract_id: &U256) -> u32 {
+    e.invoke_contract(
+        HostFunction::Call,
+        (contract_id, "decimals").try_into().unwrap(),
+    )
+    .try_into()
+    .unwrap()
+}
+
+pub fn name(e: &mut Env, contract_id: &U256) -> Binary {
+    e.invoke_contract(
+        HostFunction::Call,
+        (contract_id, "name").try_into().unwrap(),
+    )
+    .try_into_val(e)
+    .unwrap()
+}
+
+pub fn symbol(e: &mut Env, contract_id: &U256) -> Binary {
+    e.invoke_contract(
+        HostFunction::Call,
+        (contract_id, "symbol").try_into().unwrap(),
+    )
+    .try_into_val(e)
+    .unwrap()
 }
