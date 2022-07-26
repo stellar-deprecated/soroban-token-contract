@@ -155,7 +155,7 @@ impl Token {
 
 #[test]
 fn test() {
-    let e = Env::with_empty_recording_storage();
+    let e: Env = Default::default();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
 
@@ -225,7 +225,7 @@ fn test() {
 #[test]
 #[should_panic(expected = "insufficient balance")]
 fn xfer_insufficient_balance() {
-    let e = Env::with_empty_recording_storage();
+    let e: Env = Default::default();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
     let mut token = Token(e, contract_id.clone());
@@ -249,7 +249,7 @@ fn xfer_insufficient_balance() {
 #[test]
 #[should_panic(expected = "can't receive when frozen")]
 fn xfer_receive_frozen() {
-    let e = Env::with_empty_recording_storage();
+    let e: Env = Default::default();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
     let mut token = Token(e, contract_id.clone());
@@ -274,7 +274,7 @@ fn xfer_receive_frozen() {
 #[test]
 #[should_panic(expected = "can't spend when frozen")]
 fn xfer_spend_frozen() {
-    let e = Env::with_empty_recording_storage();
+    let e: Env = Default::default();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
     let mut token = Token(e, contract_id.clone());
@@ -299,7 +299,7 @@ fn xfer_spend_frozen() {
 #[test]
 #[should_panic(expected = "insufficient allowance")]
 fn xfer_from_insufficient_allowance() {
-    let e = Env::with_empty_recording_storage();
+    let e: Env = Default::default();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
     let mut token = Token(e, contract_id.clone());
@@ -329,7 +329,7 @@ fn xfer_from_insufficient_allowance() {
 #[test]
 #[should_panic(expected = "already initialized")]
 fn initialize_already_initialized() {
-    let e = Env::with_empty_recording_storage();
+    let e: Env = Default::default();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
     let mut token = Token(e, contract_id.clone());
@@ -344,7 +344,7 @@ fn initialize_already_initialized() {
 #[test]
 #[should_panic] // TODO: Add expected
 fn set_admin_bad_signature() {
-    let e = Env::with_empty_recording_storage();
+    let e: Env = Default::default();
     let contract_id = generate_contract_id();
     external::register_test_contract(&e, &contract_id);
     let mut token = Token(e, contract_id.clone());
