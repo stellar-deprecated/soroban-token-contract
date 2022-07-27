@@ -136,12 +136,7 @@ impl TokenTrait for Token {
 
     fn freeze(e: Env, admin: Authorization, id: Identifier) {
         let auth = to_administrator_authorization(&e, admin);
-        check_auth(
-            &e,
-            auth,
-            Domain::Freeze,
-            (id.clone(),).clone().into_val(&e),
-        );
+        check_auth(&e, auth, Domain::Freeze, (id.clone(),).clone().into_val(&e));
         write_state(&e, id, true);
     }
 
