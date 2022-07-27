@@ -508,7 +508,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "stellar-contract-env-common"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=54d1f82#54d1f8299fd067876a317f8c79bb2177c35abbfa"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=7d29b853#7d29b8537e2d337f6696275cb1e4bec4eb417a1a"
 dependencies = [
  "static_assertions",
  "stellar-contract-env-macros",
@@ -518,7 +518,7 @@ dependencies = [
 [[package]]
 name = "stellar-contract-env-guest"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=54d1f82#54d1f8299fd067876a317f8c79bb2177c35abbfa"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=7d29b853#7d29b8537e2d337f6696275cb1e4bec4eb417a1a"
 dependencies = [
  "static_assertions",
  "stellar-contract-env-common",
@@ -527,7 +527,7 @@ dependencies = [
 [[package]]
 name = "stellar-contract-env-host"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=54d1f82#54d1f8299fd067876a317f8c79bb2177c35abbfa"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=7d29b853#7d29b8537e2d337f6696275cb1e4bec4eb417a1a"
 dependencies = [
  "backtrace",
  "dyn-fmt",
@@ -548,7 +548,7 @@ dependencies = [
 [[package]]
 name = "stellar-contract-env-macros"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=54d1f82#54d1f8299fd067876a317f8c79bb2177c35abbfa"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=7d29b853#7d29b8537e2d337f6696275cb1e4bec4eb417a1a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -559,12 +559,12 @@ dependencies = [
 [[package]]
 name = "stellar-contract-env-panic-handler-wasm32-unreachable"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=54d1f82#54d1f8299fd067876a317f8c79bb2177c35abbfa"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=7d29b853#7d29b8537e2d337f6696275cb1e4bec4eb417a1a"
 
 [[package]]
 name = "stellar-contract-macros"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=764fc12#764fc126778146bdc6c56ec5e10e220cd17be9e1"
+source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=9165a7f1#9165a7f127420d59c962fa426eba95646037e1bf"
 dependencies = [
  "darling",
  "itertools",
@@ -577,7 +577,7 @@ dependencies = [
 [[package]]
 name = "stellar-contract-sdk"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=764fc12#764fc126778146bdc6c56ec5e10e220cd17be9e1"
+source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=9165a7f1#9165a7f127420d59c962fa426eba95646037e1bf"
 dependencies = [
  "ed25519-dalek",
  "stellar-contract-env-guest",
@@ -591,6 +591,7 @@ name = "stellar-token-contract"
 version = "0.0.0"
 dependencies = [
  "ed25519-dalek",
+ "num-bigint",
  "rand",
  "stellar-contract-sdk",
  "stellar-token-contract",

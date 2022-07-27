@@ -8,7 +8,7 @@ use crate::metadata::{
 };
 use crate::nonce::read_nonce;
 use crate::public_types::{Authorization, Identifier, KeyedAuthorization};
-use stellar_contract_sdk::{contractimpl, BigInt, Binary, Env, IntoEnvVal};
+use stellar_contract_sdk::{contractimpl, BigInt, Binary, Env, IntoVal};
 
 pub trait TokenTrait {
     fn initialize(e: Env, admin: Identifier, decimal: u32, name: Binary, symbol: Binary);
@@ -79,7 +79,7 @@ impl TokenTrait for Token {
             &e,
             from,
             Domain::Approve,
-            (spender.clone(), amount.clone()).into_env_val(&e),
+            (spender.clone(), amount.clone()).into_val(&e),
         );
         write_allowance(&e, from_id, spender, amount);
     }
@@ -98,7 +98,7 @@ impl TokenTrait for Token {
             &e,
             from,
             Domain::Transfer,
-            (to.clone(), amount.clone()).into_env_val(&e),
+            (to.clone(), amount.clone()).into_val(&e),
         );
         spend_balance(&e, from_id, amount.clone());
         receive_balance(&e, to, amount);
@@ -116,7 +116,7 @@ impl TokenTrait for Token {
             &e,
             spender,
             Domain::TransferFrom,
-            (from.clone(), to.clone(), amount.clone()).into_env_val(&e),
+            (from.clone(), to.clone(), amount.clone()).into_val(&e),
         );
         spend_allowance(&e, from.clone(), spender_id, amount.clone());
         spend_balance(&e, from, amount.clone());
@@ -129,14 +129,14 @@ impl TokenTrait for Token {
             &e,
             auth,
             Domain::Burn,
-            (from.clone(), amount.clone()).into_env_val(&e),
+            (from.clone(), amount.clone()).into_val(&e),
         );
         spend_balance(&e, from, amount);
     }
 
     fn freeze(e: Env, admin: Authorization, id: Identifier) {
         let auth = to_administrator_authorization(&e, admin);
-        check_auth(&e, auth, Domain::Freeze, (id.clone(),).into_env_val(&e));
+        check_auth(&e, auth, Domain::Freeze, (id.clone(),).into_val(&e));
         write_state(&e, id, true);
     }
 
@@ -146,7 +146,7 @@ impl TokenTrait for Token {
             &e,
             auth,
             Domain::Mint,
-            (to.clone(), amount.clone()).into_env_val(&e),
+            (to.clone(), amount.clone()).into_val(&e),
         );
         receive_balance(&e, to, amount);
     }
@@ -157,14 +157,14 @@ impl TokenTrait for Token {
             &e,
             auth,
             Domain::SetAdministrator,
-            (new_admin.clone(),).into_env_val(&e),
+            (new_admin.clone(),).into_val(&e),
         );
         write_administrator(&e, new_admin);
     }
 
     fn unfreeze(e: Env, admin: Authorization, id: Identifier) {
         let auth = to_administrator_authorization(&e, admin);
-        check_auth(&e, auth, Domain::Unfreeze, (id.clone(),).into_env_val(&e));
+        check_auth(&e, auth, Domain::Unfreeze, (id.clone(),).into_val(&e));
         write_state(&e, id, false);
     }
 

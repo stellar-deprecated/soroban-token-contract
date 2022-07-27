@@ -15,7 +15,8 @@ testutils = ["stellar-contract-sdk/testutils", "dep:ed25519-dalek"]
 
 [dependencies]
 ed25519-dalek = { version = "1.0.1", optional = true }
-stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "764fc12" }
+num-bigint = { version = "0.4", optional = true }
+stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "9165a7f1" }
 # stellar-contract-sdk = { path = "../rs-stellar-contract-sdk/sdk" }
 
 [dev-dependencies]

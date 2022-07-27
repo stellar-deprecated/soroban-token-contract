@@ -6,7 +6,7 @@ use crate::public_types::{
 };
 use ed25519_dalek::Keypair;
 use stellar_contract_sdk::testutils::ed25519::Sign;
-use stellar_contract_sdk::{BigInt, Binary, Env, EnvVal, FixedBinary, IntoEnvVal, TryIntoVal, Vec};
+use stellar_contract_sdk::{BigInt, Binary, Env, EnvVal, FixedBinary, IntoVal, Vec};
 
 pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
     let contract_id = Binary::from_array(e, *contract_id);
@@ -31,7 +31,7 @@ pub use crate::contract::__xfer::call_external as xfer;
 pub use crate::contract::__xfer_from::call_external as xfer_from;
 
 pub fn to_ed25519(e: &Env, kp: &Keypair) -> Identifier {
-    Identifier::Ed25519(kp.public.to_bytes().try_into_val(e).unwrap())
+    Identifier::Ed25519(kp.public.to_bytes().into_val(e))
 }
 
 pub struct Token {
@@ -48,8 +48,8 @@ impl Token {
     }
 
     pub fn initialize(&mut self, admin: &Identifier, decimals: u32, name: &str, symbol: &str) {
-        let name: Binary = Binary::from_slice(&self.env, name.as_bytes());
-        let symbol: Binary = Binary::from_slice(&self.env, symbol.as_bytes());
+        let name: Binary = name.into_val(&self.env);
+        let symbol: Binary = symbol.into_val(&self.env);
         initialize(
             &mut self.env,
             &self.contract_id,
@@ -78,8 +78,8 @@ impl Token {
             parameters: args,
         });
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
-            public_key: FixedBinary::from_array(&self.env, from.public.to_bytes()),
-            signature: from.sign(msg).unwrap().try_into_val(&self.env).unwrap(),
+            public_key: from.public.to_bytes().into_val(&self.env),
+            signature: from.sign(msg).unwrap().into_val(&self.env),
         });
         approve(&mut self.env, &self.contract_id, &auth, spender, amount)
     }
@@ -103,7 +103,7 @@ impl Token {
         });
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
             public_key: FixedBinary::from_array(&self.env, from.public.to_bytes()),
-            signature: from.sign(msg).unwrap().try_into_val(&self.env).unwrap(),
+            signature: from.sign(msg).unwrap().into_val(&self.env),
         });
         xfer(&mut self.env, &self.contract_id, &auth, to, amount)
     }
@@ -125,8 +125,8 @@ impl Token {
             parameters: args,
         });
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
-            public_key: FixedBinary::from_array(&self.env, spender.public.to_bytes()),
-            signature: spender.sign(msg).unwrap().try_into_val(&self.env).unwrap(),
+            public_key: spender.public.to_bytes().into_val(&self.env),
+            signature: spender.sign(msg).unwrap().into_val(&self.env),
         });
         xfer_from(&mut self.env, &self.contract_id, &auth, from, to, amount)
     }
@@ -140,8 +140,7 @@ impl Token {
             domain: Domain::Burn as u32,
             parameters: args,
         });
-        let auth =
-            Authorization::Ed25519(admin.sign(msg).unwrap().try_into_val(&self.env).unwrap());
+        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
         burn(&mut self.env, &self.contract_id, &auth, from, amount)
     }
 
@@ -153,8 +152,7 @@ impl Token {
             domain: Domain::Freeze as u32,
             parameters: args,
         });
-        let auth =
-            Authorization::Ed25519(admin.sign(msg).unwrap().try_into_val(&self.env).unwrap());
+        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
         freeze(&mut self.env, &self.contract_id, &auth, id)
     }
 
@@ -167,8 +165,7 @@ impl Token {
             domain: Domain::Mint as u32,
             parameters: args,
         });
-        let auth =
-            Authorization::Ed25519(admin.sign(msg).unwrap().try_into_val(&self.env).unwrap());
+        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
         mint(&mut self.env, &self.contract_id, &auth, to, amount)
     }
 
@@ -180,8 +177,7 @@ impl Token {
             domain: Domain::SetAdministrator as u32,
             parameters: args,
         });
-        let auth =
-            Authorization::Ed25519(admin.sign(msg).unwrap().try_into_val(&self.env).unwrap());
+        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
         set_admin(&mut self.env, &self.contract_id, &auth, new_admin)
     }
 
@@ -193,8 +189,7 @@ impl Token {
             domain: Domain::Unfreeze as u32,
             parameters: args,
         });
-        let auth =
-            Authorization::Ed25519(admin.sign(msg).unwrap().try_into_val(&self.env).unwrap());
+        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
         unfreeze(&mut self.env, &self.contract_id, &auth, id)
     }
 
