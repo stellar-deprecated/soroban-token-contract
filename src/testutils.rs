@@ -1,5 +1,6 @@
 #![cfg(feature = "testutils")]
 
+use crate::cryptography::Domain;
 use crate::public_types::{
     Authorization, Identifier, KeyedAuthorization, KeyedEd25519Authorization, Message, MessageV0,
 };
@@ -73,7 +74,7 @@ impl Token {
         args.push(amount.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
             nonce: self.nonce(&to_ed25519(&self.env, from)),
-            domain: crate::cryptography::Domain::Approve as u32,
+            domain: Domain::Approve as u32,
             parameters: args,
         });
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
@@ -97,7 +98,7 @@ impl Token {
         args.push(amount.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
             nonce: self.nonce(&to_ed25519(&self.env, from)),
-            domain: crate::cryptography::Domain::Transfer as u32,
+            domain: Domain::Transfer as u32,
             parameters: args,
         });
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
@@ -120,7 +121,7 @@ impl Token {
         args.push(amount.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
             nonce: self.nonce(&to_ed25519(&self.env, spender)),
-            domain: crate::cryptography::Domain::TransferFrom as u32,
+            domain: Domain::TransferFrom as u32,
             parameters: args,
         });
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
@@ -136,7 +137,7 @@ impl Token {
         args.push(amount.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
             nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: crate::cryptography::Domain::Burn as u32,
+            domain: Domain::Burn as u32,
             parameters: args,
         });
         let auth =
@@ -149,7 +150,7 @@ impl Token {
         args.push(id.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
             nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: crate::cryptography::Domain::Freeze as u32,
+            domain: Domain::Freeze as u32,
             parameters: args,
         });
         let auth =
@@ -163,7 +164,7 @@ impl Token {
         args.push(amount.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
             nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: crate::cryptography::Domain::Mint as u32,
+            domain: Domain::Mint as u32,
             parameters: args,
         });
         let auth =
@@ -176,7 +177,7 @@ impl Token {
         args.push(new_admin.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
             nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: crate::cryptography::Domain::SetAdministrator as u32,
+            domain: Domain::SetAdministrator as u32,
             parameters: args,
         });
         let auth =
@@ -189,7 +190,7 @@ impl Token {
         args.push(id.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
             nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: crate::cryptography::Domain::Unfreeze as u32,
+            domain: Domain::Unfreeze as u32,
             parameters: args,
         });
         let auth =
