@@ -47,11 +47,11 @@ impl Token {
         }
     }
 
-    pub fn initialize(&mut self, admin: &Identifier, decimals: u32, name: &str, symbol: &str) {
+    pub fn initialize(&self, admin: &Identifier, decimals: u32, name: &str, symbol: &str) {
         let name: Binary = name.into_val(&self.env);
         let symbol: Binary = symbol.into_val(&self.env);
         initialize(
-            &mut self.env,
+            &self.env,
             &self.contract_id,
             admin,
             &decimals,
@@ -60,15 +60,15 @@ impl Token {
         )
     }
 
-    pub fn nonce(&mut self, id: &Identifier) -> BigInt {
-        nonce(&mut self.env, &self.contract_id, id)
+    pub fn nonce(&self, id: &Identifier) -> BigInt {
+        nonce(&self.env, &self.contract_id, id)
     }
 
-    pub fn allowance(&mut self, from: &Identifier, spender: &Identifier) -> BigInt {
-        allowance(&mut self.env, &self.contract_id, from, spender)
+    pub fn allowance(&self, from: &Identifier, spender: &Identifier) -> BigInt {
+        allowance(&self.env, &self.contract_id, from, spender)
     }
 
-    pub fn approve(&mut self, from: &Keypair, spender: &Identifier, amount: &BigInt) {
+    pub fn approve(&self, from: &Keypair, spender: &Identifier, amount: &BigInt) {
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
         args.push(spender.clone().into_env_val(&self.env));
         args.push(amount.clone().into_env_val(&self.env));
@@ -81,18 +81,18 @@ impl Token {
             public_key: from.public.to_bytes().into_val(&self.env),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
-        approve(&mut self.env, &self.contract_id, &auth, spender, amount)
+        approve(&self.env, &self.contract_id, &auth, spender, amount)
     }
 
-    pub fn balance(&mut self, id: &Identifier) -> BigInt {
-        balance(&mut self.env, &self.contract_id, id)
+    pub fn balance(&self, id: &Identifier) -> BigInt {
+        balance(&self.env, &self.contract_id, id)
     }
 
-    pub fn is_frozen(&mut self, id: &Identifier) -> bool {
-        is_frozen(&mut self.env, &self.contract_id, id)
+    pub fn is_frozen(&self, id: &Identifier) -> bool {
+        is_frozen(&self.env, &self.contract_id, id)
     }
 
-    pub fn xfer(&mut self, from: &Keypair, to: &Identifier, amount: &BigInt) {
+    pub fn xfer(&self, from: &Keypair, to: &Identifier, amount: &BigInt) {
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
         args.push(to.clone().into_env_val(&self.env));
         args.push(amount.clone().into_env_val(&self.env));
@@ -105,11 +105,11 @@ impl Token {
             public_key: FixedBinary::from_array(&self.env, from.public.to_bytes()),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
-        xfer(&mut self.env, &self.contract_id, &auth, to, amount)
+        xfer(&self.env, &self.contract_id, &auth, to, amount)
     }
 
     pub fn xfer_from(
-        &mut self,
+        &self,
         spender: &Keypair,
         from: &Identifier,
         to: &Identifier,
@@ -128,10 +128,10 @@ impl Token {
             public_key: spender.public.to_bytes().into_val(&self.env),
             signature: spender.sign(msg).unwrap().into_val(&self.env),
         });
-        xfer_from(&mut self.env, &self.contract_id, &auth, from, to, amount)
+        xfer_from(&self.env, &self.contract_id, &auth, from, to, amount)
     }
 
-    pub fn burn(&mut self, admin: &Keypair, from: &Identifier, amount: &BigInt) {
+    pub fn burn(&self, admin: &Keypair, from: &Identifier, amount: &BigInt) {
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
         args.push(from.clone().into_env_val(&self.env));
         args.push(amount.clone().into_env_val(&self.env));
@@ -141,10 +141,10 @@ impl Token {
             parameters: args,
         });
         let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        burn(&mut self.env, &self.contract_id, &auth, from, amount)
+        burn(&self.env, &self.contract_id, &auth, from, amount)
     }
 
-    pub fn freeze(&mut self, admin: &Keypair, id: &Identifier) {
+    pub fn freeze(&self, admin: &Keypair, id: &Identifier) {
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
         args.push(id.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
@@ -153,10 +153,10 @@ impl Token {
             parameters: args,
         });
         let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        freeze(&mut self.env, &self.contract_id, &auth, id)
+        freeze(&self.env, &self.contract_id, &auth, id)
     }
 
-    pub fn mint(&mut self, admin: &Keypair, to: &Identifier, amount: &BigInt) {
+    pub fn mint(&self, admin: &Keypair, to: &Identifier, amount: &BigInt) {
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
         args.push(to.clone().into_env_val(&self.env));
         args.push(amount.clone().into_env_val(&self.env));
@@ -166,10 +166,10 @@ impl Token {
             parameters: args,
         });
         let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        mint(&mut self.env, &self.contract_id, &auth, to, amount)
+        mint(&self.env, &self.contract_id, &auth, to, amount)
     }
 
-    pub fn set_admin(&mut self, admin: &Keypair, new_admin: &Identifier) {
+    pub fn set_admin(&self, admin: &Keypair, new_admin: &Identifier) {
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
         args.push(new_admin.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
@@ -178,10 +178,10 @@ impl Token {
             parameters: args,
         });
         let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        set_admin(&mut self.env, &self.contract_id, &auth, new_admin)
+        set_admin(&self.env, &self.contract_id, &auth, new_admin)
     }
 
-    pub fn unfreeze(&mut self, admin: &Keypair, id: &Identifier) {
+    pub fn unfreeze(&self, admin: &Keypair, id: &Identifier) {
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
         args.push(id.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
@@ -190,18 +190,18 @@ impl Token {
             parameters: args,
         });
         let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        unfreeze(&mut self.env, &self.contract_id, &auth, id)
+        unfreeze(&self.env, &self.contract_id, &auth, id)
     }
 
-    pub fn decimals(&mut self) -> u32 {
-        decimals(&mut self.env, &self.contract_id)
+    pub fn decimals(&self) -> u32 {
+        decimals(&self.env, &self.contract_id)
     }
 
-    pub fn name(&mut self) -> Binary {
-        name(&mut self.env, &self.contract_id)
+    pub fn name(&self) -> Binary {
+        name(&self.env, &self.contract_id)
     }
 
-    pub fn symbol(&mut self) -> Binary {
-        symbol(&mut self.env, &self.contract_id)
+    pub fn symbol(&self) -> Binary {
+        symbol(&self.env, &self.contract_id)
     }
 }
