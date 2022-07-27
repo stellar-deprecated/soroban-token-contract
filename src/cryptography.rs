@@ -4,7 +4,7 @@ use crate::public_types::{
     MessageV0, U256,
 };
 use stellar_contract_sdk::serde::Serialize;
-use stellar_contract_sdk::{Env, EnvVal};
+use stellar_contract_sdk::{Account, Env, EnvVal};
 
 #[repr(u32)]
 pub enum Domain {
@@ -40,8 +40,7 @@ fn check_account_auth(
     domain: Domain,
     parameters: EnvVal,
 ) {
-    use stellar_contract_sdk::Binary;
-    let acc_id: Binary = auth.public_key.clone().into();
+    let acc = Account::from_public_key(&auth.public_key).unwrap();
 
     let msg = MessageV0 {
         nonce: read_and_increment_nonce(&e, Identifier::Account(auth.public_key)),
@@ -50,7 +49,7 @@ fn check_account_auth(
     };
     let msg_bin = Message::V0(msg).serialize(e);
 
-    let threshold = e.account_get_medium_threshold(acc_id.clone());
+    let threshold = acc.medium_threshold();
     let mut weight = 0u32;
 
     let sigs = &auth.auth.signatures;
@@ -69,7 +68,7 @@ fn check_account_auth(
             msg_bin.clone(),
         );
         // TODO: Check for overflow
-        weight += e.account_get_signer_weight(acc_id.clone(), sig.public_key.clone().into());
+        weight += acc.signer_weight(&sig.public_key);
 
         prev_pk = Some(sig.public_key);
     }
