@@ -2,7 +2,7 @@ use ed25519_dalek::Keypair;
 use external::MessageWithoutNonce as ContractFn;
 use num_bigint::BigInt;
 use rand::{thread_rng, RngCore};
-use stellar_contract_sdk::{Binary, Env};
+use stellar_contract_sdk::{Binary, Env, IntoVal};
 use stellar_token_contract::{external, external::Identifier};
 
 fn generate_contract_id() -> [u8; 32] {
@@ -33,8 +33,8 @@ struct Token(Env, [u8; 32]);
 
 impl Token {
     fn initialize(&mut self, admin: &Identifier, decimal: u32, name: &str, symbol: &str) {
-        let n = Binary::from_slice(&mut self.0, name.as_bytes());
-        let s = Binary::from_slice(&mut self.0, symbol.as_bytes());
+        let n: Binary = name.into_val(&self.0);
+        let s: Binary = symbol.into_val(&self.0);
         external::initialize(&mut self.0, &self.1, admin, &decimal, &n, &s);
     }
 
