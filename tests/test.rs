@@ -21,7 +21,7 @@ fn test() {
     let e: Env = Default::default();
     let contract_id = generate_contract_id();
     register_token(&e, &contract_id);
-    let mut token = Token::new(&e, &contract_id);
+    let token = Token::new(&e, &contract_id);
 
     let admin1 = generate_keypair();
     let admin1_id = to_ed25519(&e, &admin1);
@@ -84,7 +84,7 @@ fn xfer_insufficient_balance() {
     let e: Env = Default::default();
     let contract_id = generate_contract_id();
     register_token(&e, &contract_id);
-    let mut token = Token::new(&e, &contract_id);
+    let token = Token::new(&e, &contract_id);
 
     let admin1 = generate_keypair();
     let user1 = generate_keypair();
@@ -108,7 +108,7 @@ fn xfer_receive_frozen() {
     let e: Env = Default::default();
     let contract_id = generate_contract_id();
     register_token(&e, &contract_id);
-    let mut token = Token::new(&e, &contract_id);
+    let token = Token::new(&e, &contract_id);
 
     let admin1 = generate_keypair();
     let user1 = generate_keypair();
@@ -133,7 +133,7 @@ fn xfer_spend_frozen() {
     let e: Env = Default::default();
     let contract_id = generate_contract_id();
     register_token(&e, &contract_id);
-    let mut token = Token::new(&e, &contract_id);
+    let token = Token::new(&e, &contract_id);
 
     let admin1 = generate_keypair();
     let user1 = generate_keypair();
@@ -158,7 +158,7 @@ fn xfer_from_insufficient_allowance() {
     let e: Env = Default::default();
     let contract_id = generate_contract_id();
     register_token(&e, &contract_id);
-    let mut token = Token::new(&e, &contract_id);
+    let token = Token::new(&e, &contract_id);
 
     let admin1 = generate_keypair();
     let user1 = generate_keypair();
@@ -191,7 +191,7 @@ fn initialize_already_initialized() {
     let e: Env = Default::default();
     let contract_id = generate_contract_id();
     register_token(&e, &contract_id);
-    let mut token = Token::new(&e, &contract_id);
+    let token = Token::new(&e, &contract_id);
 
     let admin1 = generate_keypair();
     let admin1_id = to_ed25519(&e, &admin1);
@@ -203,10 +203,10 @@ fn initialize_already_initialized() {
 #[test]
 #[should_panic] // TODO: Add expected
 fn set_admin_bad_signature() {
-    let mut e: Env = Default::default();
+    let e: Env = Default::default();
     let contract_id = generate_contract_id();
     register_token(&e, &contract_id);
-    let mut token = Token::new(&e, &contract_id);
+    let token = Token::new(&e, &contract_id);
 
     let admin1 = generate_keypair();
     let admin2 = generate_keypair();
@@ -219,7 +219,7 @@ fn set_admin_bad_signature() {
     thread_rng().fill_bytes(&mut signature);
     let auth = Authorization::Ed25519(signature.into_val(&e));
     let contract_id_bin = Binary::from_slice(&e, &contract_id);
-    stellar_token_contract::testutils::set_admin(&mut e, &contract_id_bin, &auth, &admin2_id);
+    stellar_token_contract::testutils::set_admin(&e, &contract_id_bin, &auth, &admin2_id);
 }
 
 #[test]
@@ -228,7 +228,7 @@ fn decimal_is_over_max() {
     let e = Default::default();
     let contract_id = generate_contract_id();
     register_token(&e, &contract_id);
-    let mut token = Token::new(&e, &contract_id);
+    let token = Token::new(&e, &contract_id);
 
     let admin1 = generate_keypair();
     let admin1_id = to_ed25519(&e, &admin1);

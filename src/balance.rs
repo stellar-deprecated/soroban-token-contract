@@ -4,8 +4,8 @@ use stellar_contract_sdk::{BigInt, Env};
 
 pub fn read_balance(e: &Env, id: Identifier) -> BigInt {
     let key = DataKey::Balance(id);
-    if e.has_contract_data(key.clone()) {
-        e.get_contract_data(key)
+    if e.contract_data().has(key.clone()) {
+        e.contract_data().get(key)
     } else {
         BigInt::from_u32(e, 0)
     }
@@ -13,7 +13,7 @@ pub fn read_balance(e: &Env, id: Identifier) -> BigInt {
 
 fn write_balance(e: &Env, id: Identifier, amount: BigInt) {
     let key = DataKey::Balance(id);
-    e.put_contract_data(key, amount);
+    e.contract_data().set(key, amount);
 }
 
 pub fn receive_balance(e: &Env, id: Identifier, amount: BigInt) {
@@ -39,8 +39,8 @@ pub fn spend_balance(e: &Env, id: Identifier, amount: BigInt) {
 
 pub fn read_state(e: &Env, id: Identifier) -> bool {
     let key = DataKey::State(id);
-    if e.has_contract_data(key.clone()) {
-        e.get_contract_data(key)
+    if e.contract_data().has(key.clone()) {
+        e.contract_data().get(key)
     } else {
         false
     }
@@ -48,5 +48,5 @@ pub fn read_state(e: &Env, id: Identifier) -> bool {
 
 pub fn write_state(e: &Env, id: Identifier, is_frozen: bool) {
     let key = DataKey::State(id);
-    e.put_contract_data(key, is_frozen);
+    e.contract_data().set(key, is_frozen);
 }

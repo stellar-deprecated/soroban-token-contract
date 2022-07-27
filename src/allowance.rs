@@ -4,8 +4,8 @@ use stellar_contract_sdk::{BigInt, Env};
 
 pub fn read_allowance(e: &Env, from: Identifier, spender: Identifier) -> BigInt {
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });
-    if e.has_contract_data(key.clone()) {
-        e.get_contract_data(key)
+    if e.contract_data().has(key.clone()) {
+        e.contract_data().get(key)
     } else {
         BigInt::from_u32(e, 0)
     }
@@ -13,7 +13,7 @@ pub fn read_allowance(e: &Env, from: Identifier, spender: Identifier) -> BigInt 
 
 pub fn write_allowance(e: &Env, from: Identifier, spender: Identifier, amount: BigInt) {
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });
-    e.put_contract_data(key, amount);
+    e.contract_data().set(key, amount);
 }
 
 pub fn spend_allowance(e: &Env, from: Identifier, spender: Identifier, amount: BigInt) {
