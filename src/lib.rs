@@ -14,3 +14,5 @@ mod nonce;
 pub mod public_types;
 mod storage_types;
 pub mod testutils;
+
+pub use cryptography::Domain;
