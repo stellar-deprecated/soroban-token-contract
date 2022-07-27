@@ -219,7 +219,7 @@ fn set_admin_bad_signature() {
     thread_rng().fill_bytes(&mut signature);
     let auth = Authorization::Ed25519(signature.into_val(&e));
     let contract_id_bin = Binary::from_slice(&e, &contract_id);
-    stellar_token_contract::testutils::set_admin(&e, &contract_id_bin, &auth, &admin2_id);
+    stellar_token_contract::set_admin(&e, &contract_id_bin, &auth, &admin2_id);
 }
 
 #[test]

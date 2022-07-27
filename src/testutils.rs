@@ -4,6 +4,7 @@ use crate::cryptography::Domain;
 use crate::public_types::{
     Authorization, Identifier, KeyedAuthorization, KeyedEd25519Authorization, Message, MessageV0,
 };
+use crate::*;
 use ed25519_dalek::Keypair;
 use stellar_contract_sdk::testutils::ed25519::Sign;
 use stellar_contract_sdk::{BigInt, Binary, Env, EnvVal, FixedBinary, IntoVal, Vec};
@@ -12,23 +13,6 @@ pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
     let contract_id = Binary::from_array(e, *contract_id);
     e.register_contract(contract_id, crate::contract::Token {});
 }
-
-pub use crate::contract::__allowance::call_external as allowance;
-pub use crate::contract::__approve::call_external as approve;
-pub use crate::contract::__balance::call_external as balance;
-pub use crate::contract::__burn::call_external as burn;
-pub use crate::contract::__decimals::call_external as decimals;
-pub use crate::contract::__freeze::call_external as freeze;
-pub use crate::contract::__initialize::call_external as initialize;
-pub use crate::contract::__is_frozen::call_external as is_frozen;
-pub use crate::contract::__mint::call_external as mint;
-pub use crate::contract::__name::call_external as name;
-pub use crate::contract::__nonce::call_external as nonce;
-pub use crate::contract::__set_admin::call_external as set_admin;
-pub use crate::contract::__symbol::call_external as symbol;
-pub use crate::contract::__unfreeze::call_external as unfreeze;
-pub use crate::contract::__xfer::call_external as xfer;
-pub use crate::contract::__xfer_from::call_external as xfer_from;
 
 pub fn to_ed25519(e: &Env, kp: &Keypair) -> Identifier {
     Identifier::Ed25519(kp.public.to_bytes().into_val(e))
