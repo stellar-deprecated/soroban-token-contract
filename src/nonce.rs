@@ -4,10 +4,10 @@ use soroban_sdk::{BigInt, Env};
 
 pub fn read_nonce(e: &Env, id: Identifier) -> BigInt {
     let key = DataKey::Nonce(id);
-    if e.contract_data().has(key.clone()) {
-        e.contract_data().get(key.clone())
+    if let Some(nonce) = e.contract_data().get(key) {
+        nonce.unwrap()
     } else {
-        BigInt::from_u32(e, 0)
+        BigInt::zero(e)
     }
 }
 
