@@ -4,10 +4,10 @@ use soroban_sdk::{BigInt, Env};
 
 pub fn read_allowance(e: &Env, from: Identifier, spender: Identifier) -> BigInt {
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });
-    if e.contract_data().has(key.clone()) {
-        e.contract_data().get(key)
+    if let Some(allowance) = e.contract_data().get(key) {
+        allowance.unwrap()
     } else {
-        BigInt::from_u32(e, 0)
+        BigInt::zero(e)
     }
 }
 

@@ -4,10 +4,10 @@ use soroban_sdk::{BigInt, Env};
 
 pub fn read_balance(e: &Env, id: Identifier) -> BigInt {
     let key = DataKey::Balance(id);
-    if e.contract_data().has(key.clone()) {
-        e.contract_data().get(key)
+    if let Some(balance) = e.contract_data().get(key) {
+        balance.unwrap()
     } else {
-        BigInt::from_u32(e, 0)
+        BigInt::zero(e)
     }
 }
 
@@ -39,8 +39,8 @@ pub fn spend_balance(e: &Env, id: Identifier, amount: BigInt) {
 
 pub fn read_state(e: &Env, id: Identifier) -> bool {
     let key = DataKey::State(id);
-    if e.contract_data().has(key.clone()) {
-        e.contract_data().get(key)
+    if let Some(state) = e.contract_data().get(key) {
+        state.unwrap()
     } else {
         false
     }

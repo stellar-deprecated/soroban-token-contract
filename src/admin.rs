@@ -12,7 +12,7 @@ pub fn has_administrator(e: &Env) -> bool {
 
 fn read_administrator(e: &Env) -> Identifier {
     let key = DataKey::Admin;
-    e.contract_data().get(key)
+    e.contract_data().get_unchecked(key).unwrap()
 }
 
 pub fn to_administrator_authorization(e: &Env, auth: Authorization) -> KeyedAuthorization {
