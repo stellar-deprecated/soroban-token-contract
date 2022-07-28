@@ -1,8 +1,8 @@
 use ed25519_dalek::Keypair;
 use rand::{thread_rng, RngCore};
-use stellar_contract_sdk::{BigInt, Binary, Env, IntoVal};
-use stellar_token_contract::public_types::Authorization;
-use stellar_token_contract::testutils::{
+use soroban_sdk::{BigInt, Binary, Env, IntoVal};
+use soroban_token_contract::public_types::Authorization;
+use soroban_token_contract::testutils::{
     register_test_contract as register_token, to_ed25519, Token,
 };
 
@@ -219,7 +219,7 @@ fn set_admin_bad_signature() {
     thread_rng().fill_bytes(&mut signature);
     let auth = Authorization::Ed25519(signature.into_val(&e));
     let contract_id_bin = Binary::from_slice(&e, &contract_id);
-    stellar_token_contract::set_admin(&e, &contract_id_bin, &auth, &admin2_id);
+    soroban_token_contract::set_admin(&e, &contract_id_bin, &auth, &admin2_id);
 }
 
 #[test]

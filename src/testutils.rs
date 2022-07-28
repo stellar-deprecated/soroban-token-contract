@@ -6,8 +6,8 @@ use crate::public_types::{
 };
 use crate::*;
 use ed25519_dalek::Keypair;
-use stellar_contract_sdk::testutils::ed25519::Sign;
-use stellar_contract_sdk::{BigInt, Binary, Env, EnvVal, FixedBinary, IntoVal, Vec};
+use soroban_sdk::testutils::ed25519::Sign;
+use soroban_sdk::{BigInt, Binary, Env, EnvVal, FixedBinary, IntoVal, Vec};
 
 pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
     let contract_id = Binary::from_array(e, *contract_id);

@@ -3,7 +3,7 @@ use crate::public_types::{
     KeyedEd25519Authorization,
 };
 use crate::storage_types::DataKey;
-use stellar_contract_sdk::Env;
+use soroban_sdk::Env;
 
 pub fn has_administrator(e: &Env) -> bool {
     let key = DataKey::Admin;
