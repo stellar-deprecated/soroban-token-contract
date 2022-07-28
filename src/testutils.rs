@@ -10,7 +10,7 @@ use soroban_sdk::testutils::ed25519::Sign;
 use soroban_sdk::{BigInt, Binary, Env, EnvVal, FixedBinary, IntoVal, Vec};
 
 pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
-    let contract_id = Binary::from_array(e, *contract_id);
+    let contract_id = FixedBinary::from_array(e, *contract_id);
     e.register_contract(&contract_id, crate::contract::Token {});
 }
 
@@ -20,14 +20,14 @@ pub fn to_ed25519(e: &Env, kp: &Keypair) -> Identifier {
 
 pub struct Token {
     env: Env,
-    contract_id: Binary,
+    contract_id: FixedBinary<32>,
 }
 
 impl Token {
     pub fn new(env: &Env, contract_id: &[u8; 32]) -> Self {
         Self {
             env: env.clone(),
-            contract_id: Binary::from_slice(env, contract_id),
+            contract_id: FixedBinary::from_array(env, *contract_id),
         }
     }
 
