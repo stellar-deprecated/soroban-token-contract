@@ -215,7 +215,7 @@ fn set_admin_bad_signature() {
 
     token.initialize(&admin1_id, 10, "name", "symbol");
 
-    let mut signature: [u8; 64] = vec![0; 64].as_slice().try_into().unwrap();
+    let mut signature = [0u8; 64];
     thread_rng().fill_bytes(&mut signature);
     let auth = Authorization::Ed25519(signature.into_val(&e));
     let contract_id_bin = Binary::from_slice(&e, &contract_id);

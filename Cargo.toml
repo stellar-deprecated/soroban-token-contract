@@ -16,9 +16,7 @@ testutils = ["soroban-sdk/testutils", "dep:ed25519-dalek"]
 [dependencies]
 ed25519-dalek = { version = "1.0.1", optional = true }
 num-bigint = { version = "0.4", optional = true }
-soroban-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "7e3422e" }
-# switch to this once the repos are renamed 
-# soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "7e3422e" }
+soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "6affc0c" }
 # soroban-sdk = { path = "../rs-soroban-sdk/sdk" }
 
 [dev-dependencies]

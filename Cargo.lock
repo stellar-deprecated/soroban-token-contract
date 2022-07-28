@@ -553,7 +553,7 @@ dependencies = [
 [[package]]
 name = "soroban-macros"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=7e3422e#7e3422eddbe29e3349bd9d28d0ca10955ee9ec27"
+source = "git+https://github.com/stellar/rs-soroban-sdk?rev=6affc0c#6affc0c81125e3b294aea33a54e2624301d4cd3e"
 dependencies = [
  "darling",
  "itertools",
@@ -566,7 +566,7 @@ dependencies = [
 [[package]]
 name = "soroban-sdk"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-sdk?rev=7e3422e#7e3422eddbe29e3349bd9d28d0ca10955ee9ec27"
+source = "git+https://github.com/stellar/rs-soroban-sdk?rev=6affc0c#6affc0c81125e3b294aea33a54e2624301d4cd3e"
 dependencies = [
  "ed25519-dalek",
  "soroban-env-guest",
