@@ -11,7 +11,7 @@ use soroban_sdk::{BigInt, Binary, Env, EnvVal, FixedBinary, IntoVal, Vec};
 
 pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
     let contract_id = Binary::from_array(e, *contract_id);
-    e.register_contract(contract_id, crate::contract::Token {});
+    e.register_contract(&contract_id, crate::contract::Token {});
 }
 
 pub fn to_ed25519(e: &Env, kp: &Keypair) -> Identifier {
