@@ -1,5 +1,5 @@
 use crate::public_types::Identifier;
-use stellar_contract_sdk::contracttype;
+use soroban_sdk::contracttype;
 
 #[derive(Clone)]
 #[contracttype]

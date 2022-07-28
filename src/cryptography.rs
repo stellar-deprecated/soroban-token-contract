@@ -3,8 +3,8 @@ use crate::public_types::{
     Identifier, KeyedAccountAuthorization, KeyedAuthorization, KeyedEd25519Authorization, Message,
     MessageV0, U256,
 };
-use stellar_contract_sdk::serde::Serialize;
-use stellar_contract_sdk::{Account, Env, EnvVal};
+use soroban_sdk::serde::Serialize;
+use soroban_sdk::{Account, Env, EnvVal};
 
 #[repr(u32)]
 pub enum Domain {

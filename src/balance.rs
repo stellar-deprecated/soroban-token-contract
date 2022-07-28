@@ -1,6 +1,6 @@
 use crate::public_types::Identifier;
 use crate::storage_types::DataKey;
-use stellar_contract_sdk::{BigInt, Env};
+use soroban_sdk::{BigInt, Env};
 
 pub fn read_balance(e: &Env, id: Identifier) -> BigInt {
     let key = DataKey::Balance(id);

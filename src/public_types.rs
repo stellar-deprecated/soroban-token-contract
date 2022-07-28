@@ -1,4 +1,4 @@
-use stellar_contract_sdk::{contracttype, BigInt, Env, EnvVal, FixedBinary, Vec};
+use soroban_sdk::{contracttype, BigInt, Env, EnvVal, FixedBinary, Vec};
 
 pub type U256 = FixedBinary<32>;
 pub type U512 = FixedBinary<64>;

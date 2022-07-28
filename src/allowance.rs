@@ -1,6 +1,6 @@
 use crate::public_types::Identifier;
 use crate::storage_types::{AllowanceDataKey, DataKey};
-use stellar_contract_sdk::{BigInt, Env};
+use soroban_sdk::{BigInt, Env};
 
 pub fn read_allowance(e: &Env, from: Identifier, spender: Identifier) -> BigInt {
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });

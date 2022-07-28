@@ -8,7 +8,7 @@ use crate::metadata::{
 };
 use crate::nonce::read_nonce;
 use crate::public_types::{Authorization, Identifier, KeyedAuthorization};
-use stellar_contract_sdk::{contractimpl, BigInt, Binary, Env, IntoVal};
+use soroban_sdk::{contractimpl, BigInt, Binary, Env, IntoVal};
 
 pub trait TokenTrait {
     fn initialize(e: Env, admin: Identifier, decimal: u32, name: Binary, symbol: Binary);

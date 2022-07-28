@@ -1,5 +1,5 @@
 use crate::storage_types::DataKey;
-use stellar_contract_sdk::{Binary, Env};
+use soroban_sdk::{Binary, Env};
 
 pub fn read_decimal(e: &Env) -> u32 {
     let key = DataKey::Decimals;

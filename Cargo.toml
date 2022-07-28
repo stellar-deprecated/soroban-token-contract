@@ -1,5 +1,5 @@
 [package]
-name = "stellar-token-contract"
+name = "soroban-token-contract"
 version = "0.0.0"
 authors = ["Stellar Development Foundation <info@stellar.org>"]
 license = "Apache-2.0"
@@ -11,14 +11,16 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = ["export"]
 export = []
-testutils = ["stellar-contract-sdk/testutils", "dep:ed25519-dalek"]
+testutils = ["soroban-sdk/testutils", "dep:ed25519-dalek"]
 
 [dependencies]
 ed25519-dalek = { version = "1.0.1", optional = true }
 num-bigint = { version = "0.4", optional = true }
-stellar-contract-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "86ebc3c" }
-# stellar-contract-sdk = { path = "../rs-stellar-contract-sdk/sdk" }
+soroban-sdk = { git = "https://github.com/stellar/rs-stellar-contract-sdk", rev = "7e3422e" }
+# switch to this once the repos are renamed 
+# soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "7e3422e" }
+# soroban-sdk = { path = "../rs-soroban-sdk/sdk" }
 
 [dev-dependencies]
-stellar-token-contract = { path = ".", features = ["export", "testutils"] }
+soroban-token-contract = { path = ".", features = ["export", "testutils"] }
 rand = { version = "0.7.3" }
