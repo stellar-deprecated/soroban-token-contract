@@ -30,10 +30,10 @@ pub fn to_administrator_authorization(e: &Env, auth: Authorization) -> KeyedAuth
                 signature,
             })
         }
-        (Identifier::Account(admin_id), Authorization::Account(aa)) => {
+        (Identifier::Account(admin_id), Authorization::Account(signatures)) => {
             KeyedAuthorization::Account(KeyedAccountAuthorization {
                 public_key: admin_id,
-                auth: aa,
+                signatures,
             })
         }
         _ => panic!("unknown identifier type"),

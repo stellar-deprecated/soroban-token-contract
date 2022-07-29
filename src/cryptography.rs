@@ -52,7 +52,7 @@ fn check_account_auth(
     let threshold = acc.medium_threshold();
     let mut weight = 0u32;
 
-    let sigs = &auth.auth.signatures;
+    let sigs = &auth.signatures;
     let mut prev_pk: Option<U256> = None;
     for sig in sigs.iter().map(Result::unwrap) {
         // Cannot take multiple signatures from the same key
