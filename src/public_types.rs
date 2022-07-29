@@ -10,13 +10,6 @@ pub struct KeyedEd25519Signature {
     pub signature: U512,
 }
 
-#[derive(Clone)]
-#[contracttype]
-pub struct KeyedEd25519Authorization {
-    pub public_key: U256,
-    pub signature: U512,
-}
-
 pub type AccountAuthorization = Vec<KeyedEd25519Signature>;
 
 #[derive(Clone)]
@@ -38,7 +31,7 @@ pub enum Authorization {
 #[contracttype]
 pub enum KeyedAuthorization {
     Contract,
-    Ed25519(KeyedEd25519Authorization),
+    Ed25519(KeyedEd25519Signature),
     Account(KeyedAccountAuthorization),
 }
 

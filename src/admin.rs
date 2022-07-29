@@ -1,6 +1,5 @@
 use crate::public_types::{
-    Authorization, Identifier, KeyedAccountAuthorization, KeyedAuthorization,
-    KeyedEd25519Authorization,
+    Authorization, Identifier, KeyedAccountAuthorization, KeyedAuthorization, KeyedEd25519Signature,
 };
 use crate::storage_types::DataKey;
 use soroban_sdk::Env;
@@ -25,7 +24,7 @@ pub fn to_administrator_authorization(e: &Env, auth: Authorization) -> KeyedAuth
             KeyedAuthorization::Contract
         }
         (Identifier::Ed25519(admin_id), Authorization::Ed25519(signature)) => {
-            KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
+            KeyedAuthorization::Ed25519(KeyedEd25519Signature {
                 public_key: admin_id,
                 signature,
             })

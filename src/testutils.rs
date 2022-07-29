@@ -2,7 +2,7 @@
 
 use crate::cryptography::Domain;
 use crate::public_types::{
-    Authorization, Identifier, KeyedAuthorization, KeyedEd25519Authorization, Message, MessageV0,
+    Authorization, Identifier, KeyedAuthorization, KeyedEd25519Signature, Message, MessageV0,
 };
 use crate::*;
 use ed25519_dalek::Keypair;
@@ -61,7 +61,7 @@ impl Token {
             domain: Domain::Approve as u32,
             parameters: args,
         });
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
+        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
             public_key: from.public.to_bytes().into_val(&self.env),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
@@ -85,7 +85,7 @@ impl Token {
             domain: Domain::Transfer as u32,
             parameters: args,
         });
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
+        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
             public_key: FixedBinary::from_array(&self.env, from.public.to_bytes()),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
@@ -108,7 +108,7 @@ impl Token {
             domain: Domain::TransferFrom as u32,
             parameters: args,
         });
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Authorization {
+        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
             public_key: spender.public.to_bytes().into_val(&self.env),
             signature: spender.sign(msg).unwrap().into_val(&self.env),
         });
