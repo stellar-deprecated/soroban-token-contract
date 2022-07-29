@@ -17,17 +17,13 @@ pub struct KeyedEd25519Authorization {
     pub signature: U512,
 }
 
-#[derive(Clone)]
-#[contracttype]
-pub struct AccountAuthorization {
-    pub signatures: Vec<KeyedEd25519Signature>,
-}
+pub type AccountAuthorization = Vec<KeyedEd25519Signature>;
 
 #[derive(Clone)]
 #[contracttype]
 pub struct KeyedAccountAuthorization {
     pub public_key: U256,
-    pub auth: AccountAuthorization,
+    pub signatures: AccountAuthorization,
 }
 
 #[derive(Clone)]
