@@ -1,6 +1,6 @@
 use crate::nonce::read_and_increment_nonce;
 use crate::public_types::{
-    Identifier, KeyedAccountAuthorization, KeyedAuthorization, KeyedEd25519Authorization, Message,
+    Identifier, KeyedAccountAuthorization, KeyedAuthorization, KeyedEd25519Signature, Message,
     MessageV0, U256,
 };
 use soroban_sdk::serde::Serialize;
@@ -18,12 +18,7 @@ pub enum Domain {
     Unfreeze = 7,
 }
 
-fn check_ed25519_auth(
-    e: &Env,
-    auth: KeyedEd25519Authorization,
-    domain: Domain,
-    parameters: EnvVal,
-) {
+fn check_ed25519_auth(e: &Env, auth: KeyedEd25519Signature, domain: Domain, parameters: EnvVal) {
     let msg = MessageV0 {
         nonce: read_and_increment_nonce(&e, Identifier::Ed25519(auth.public_key.clone())),
         domain: domain as u32,
