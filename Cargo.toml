@@ -1,5 +1,6 @@
 [package]
 name = "soroban-token-contract"
+description = "Soroban standard token contract"
 homepage = "https://github.com/stellar/soroban-token-contract"
 repository = "https://github.com/stellar/soroban-token-contract"
 authors = ["Stellar Development Foundation <info@stellar.org>"]
