@@ -1,8 +1,11 @@
 [package]
 name = "soroban-token-contract"
-version = "0.0.0"
+homepage = "https://github.com/stellar/soroban-token-contract"
+repository = "https://github.com/stellar/soroban-token-contract"
 authors = ["Stellar Development Foundation <info@stellar.org>"]
+readme = "README.md"
 license = "Apache-2.0"
+version = "0.0.2"
 edition = "2021"
 
 [lib]
@@ -16,7 +19,7 @@ testutils = ["soroban-sdk/testutils", "dep:ed25519-dalek"]
 [dependencies]
 ed25519-dalek = { version = "1.0.1", optional = true }
 num-bigint = { version = "0.4", optional = true }
-soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "32b76650" }
+soroban-sdk = { version = "0.0.3", git = "https://github.com/stellar/rs-soroban-sdk", rev = "ac51d33" }
 # soroban-sdk = { path = "../rs-soroban-sdk/sdk" }
 
 [dev-dependencies]
