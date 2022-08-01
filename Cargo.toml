@@ -20,9 +20,15 @@ testutils = ["soroban-sdk/testutils", "dep:ed25519-dalek"]
 [dependencies]
 ed25519-dalek = { version = "1.0.1", optional = true }
 num-bigint = { version = "0.4", optional = true }
-soroban-sdk = { version = "0.0.3", git = "https://github.com/stellar/rs-soroban-sdk", rev = "ac51d33" }
-# soroban-sdk = { path = "../rs-soroban-sdk/sdk" }
+soroban-sdk = { version = "0.0.3" }
 
 [dev-dependencies]
 soroban-token-contract = { path = ".", features = ["export", "testutils"] }
 rand = { version = "0.7.3" }
+
+[patch.crates-io]
+soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "d5af365" }
+# soroban-sdk = { path = "../rs-soroban-sdk/sdk" }
+
+[profile.release]
+codegen-units = 1
