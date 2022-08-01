@@ -28,7 +28,9 @@ rand = { version = "0.7.3" }
 
 [patch.crates-io]
 soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "d5af365" }
+soroban-sdk-macros = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "d5af365" }
 # soroban-sdk = { path = "../rs-soroban-sdk/sdk" }
+# soroban-sdk-macros = { path = "../rs-soroban-sdk/macros" }
 
 [profile.release]
 codegen-units = 1

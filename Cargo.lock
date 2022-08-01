@@ -548,8 +548,7 @@ dependencies = [
 [[package]]
 name = "soroban-sdk-macros"
 version = "0.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "618d5edb62ffe6c4290b2c71f1ad9cef40b1087ffc391811f3adcb722538b8ad"
+source = "git+https://github.com/stellar/rs-soroban-sdk?rev=d5af365#d5af365c1ac19f7576e63c0ad4e8298f8100875f"
 dependencies = [
  "darling",
  "itertools",
