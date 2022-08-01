@@ -29,3 +29,6 @@ rand = { version = "0.7.3" }
 [patch.crates-io]
 soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "d5af365" }
 # soroban-sdk = { path = "../rs-soroban-sdk/sdk" }
+
+[profile.release]
+codegen-units = 1
