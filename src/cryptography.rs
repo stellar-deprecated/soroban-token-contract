@@ -6,22 +6,10 @@ use crate::public_types::{
 use soroban_sdk::serde::Serialize;
 use soroban_sdk::{Account, Env, EnvVal};
 
-#[repr(u32)]
-pub enum Domain {
-    Approve = 0,
-    Transfer = 1,
-    TransferFrom = 2,
-    Burn = 3,
-    Freeze = 4,
-    Mint = 5,
-    SetAdministrator = 6,
-    Unfreeze = 7,
-}
-
-fn check_ed25519_auth(e: &Env, auth: KeyedEd25519Signature, domain: Domain, parameters: EnvVal) {
+fn check_ed25519_auth(e: &Env, auth: KeyedEd25519Signature, domain: u32, parameters: EnvVal) {
     let msg = MessageV0 {
         nonce: read_and_increment_nonce(&e, Identifier::Ed25519(auth.public_key.clone())),
-        domain: domain as u32,
+        domain: domain,
         parameters: parameters.try_into().unwrap(),
     };
     let msg_bin = Message::V0(msg).serialize(e);
@@ -29,17 +17,12 @@ fn check_ed25519_auth(e: &Env, auth: KeyedEd25519Signature, domain: Domain, para
     e.verify_sig_ed25519(auth.public_key.into(), msg_bin, auth.signature.into());
 }
 
-fn check_account_auth(
-    e: &Env,
-    auth: KeyedAccountAuthorization,
-    domain: Domain,
-    parameters: EnvVal,
-) {
+fn check_account_auth(e: &Env, auth: KeyedAccountAuthorization, domain: u32, parameters: EnvVal) {
     let acc = Account::from_public_key(&auth.public_key).unwrap();
 
     let msg = MessageV0 {
         nonce: read_and_increment_nonce(&e, Identifier::Account(auth.public_key)),
-        domain: domain as u32,
+        domain: domain,
         parameters: parameters.try_into().unwrap(),
     };
     let msg_bin = Message::V0(msg).serialize(e);
@@ -73,7 +56,7 @@ fn check_account_auth(
     }
 }
 
-pub fn check_auth(e: &Env, auth: KeyedAuthorization, domain: Domain, parameters: EnvVal) {
+pub fn check_auth(e: &Env, auth: KeyedAuthorization, domain: u32, parameters: EnvVal) {
     match auth {
         KeyedAuthorization::Contract => {
             e.get_invoking_contract();
