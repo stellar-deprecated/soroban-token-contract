@@ -537,7 +537,7 @@ dependencies = [
 [[package]]
 name = "soroban-sdk"
 version = "0.0.3"
-source = "git+https://github.com/stellar/rs-soroban-sdk?rev=ac51d33#ac51d3315ac811dc60059198d3004f7eeda62652"
+source = "git+https://github.com/stellar/rs-soroban-sdk?rev=53721da#53721da9854506ac6e8aa3cc32babc3f9b826c4a"
 dependencies = [
  "ed25519-dalek",
  "soroban-env-guest",
