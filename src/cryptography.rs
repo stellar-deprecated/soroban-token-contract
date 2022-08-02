@@ -1,27 +1,48 @@
 use crate::nonce::read_and_increment_nonce;
 use crate::public_types::{
-    Identifier, KeyedAccountAuthorization, KeyedAuthorization, KeyedEd25519Signature, Message,
-    MessageV0, U256,
+    KeyedAccountAuthorization, KeyedAuthorization, KeyedEd25519Signature, Message, MessageV0, U256,
 };
 use soroban_sdk::serde::Serialize;
-use soroban_sdk::{Account, Env, EnvVal};
+use soroban_sdk::{Account, Env, EnvVal, IntoVal, RawVal};
 
-fn check_ed25519_auth(e: &Env, auth: KeyedEd25519Signature, domain: u32, parameters: EnvVal) {
+pub trait ContractDataKey: Clone {}
+
+fn check_ed25519_auth<T>(
+    e: &Env,
+    auth: &KeyedEd25519Signature,
+    domain: u32,
+    parameters: EnvVal,
+    nonce_key: T,
+) where
+    T: IntoVal<Env, RawVal> + ContractDataKey,
+{
     let msg = MessageV0 {
-        nonce: read_and_increment_nonce(&e, Identifier::Ed25519(auth.public_key.clone())),
+        nonce: read_and_increment_nonce(&e, nonce_key),
         domain: domain,
         parameters: parameters.try_into().unwrap(),
     };
     let msg_bin = Message::V0(msg).serialize(e);
 
-    e.verify_sig_ed25519(auth.public_key.into(), msg_bin, auth.signature.into());
+    e.verify_sig_ed25519(
+        auth.public_key.clone().into(),
+        msg_bin,
+        auth.signature.clone().into(),
+    );
 }
 
-fn check_account_auth(e: &Env, auth: KeyedAccountAuthorization, domain: u32, parameters: EnvVal) {
+fn check_account_auth<T>(
+    e: &Env,
+    auth: &KeyedAccountAuthorization,
+    domain: u32,
+    parameters: EnvVal,
+    nonce_key: T,
+) where
+    T: IntoVal<Env, RawVal> + ContractDataKey,
+{
     let acc = Account::from_public_key(&auth.public_key).unwrap();
 
     let msg = MessageV0 {
-        nonce: read_and_increment_nonce(&e, Identifier::Account(auth.public_key)),
+        nonce: read_and_increment_nonce(&e, nonce_key),
         domain: domain,
         parameters: parameters.try_into().unwrap(),
     };
@@ -56,12 +77,35 @@ fn check_account_auth(e: &Env, auth: KeyedAccountAuthorization, domain: u32, par
     }
 }
 
-pub fn check_auth(e: &Env, auth: KeyedAuthorization, domain: u32, parameters: EnvVal) {
+pub fn check_auth<T>(
+    e: &Env,
+    auth: &KeyedAuthorization,
+    domain: u32,
+    parameters: EnvVal,
+    nonce_key: Option<T>,
+) where
+    T: IntoVal<Env, RawVal> + ContractDataKey,
+{
     match auth {
         KeyedAuthorization::Contract => {
+            if nonce_key.is_some() {
+                panic!("nonce_key should not be specified for contract");
+            }
             e.get_invoking_contract();
         }
-        KeyedAuthorization::Ed25519(kea) => check_ed25519_auth(e, kea, domain, parameters),
-        KeyedAuthorization::Account(kaa) => check_account_auth(e, kaa, domain, parameters),
+        KeyedAuthorization::Ed25519(kea) => check_ed25519_auth(
+            e,
+            kea,
+            domain,
+            parameters,
+            nonce_key.expect("nonce is missing"),
+        ),
+        KeyedAuthorization::Account(kaa) => check_account_auth(
+            e,
+            kaa,
+            domain,
+            parameters,
+            nonce_key.expect("nonce is missing"),
+        ),
     }
 }
