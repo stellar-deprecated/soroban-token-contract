@@ -8,10 +8,10 @@ use crate::metadata::{
 };
 use crate::nonce::read_nonce;
 use crate::public_types::{Authorization, Identifier, KeyedAuthorization};
-use soroban_sdk::{contractimpl, BigInt, Binary, Env, IntoVal};
+use soroban_sdk::{contractimpl, BigInt, Bytes, Env, IntoVal};
 
 pub trait TokenTrait {
-    fn initialize(e: Env, admin: Identifier, decimal: u32, name: Binary, symbol: Binary);
+    fn initialize(e: Env, admin: Identifier, decimal: u32, name: Bytes, symbol: Bytes);
 
     fn nonce(e: Env, id: Identifier) -> BigInt;
 
@@ -45,16 +45,16 @@ pub trait TokenTrait {
 
     fn decimals(e: Env) -> u32;
 
-    fn name(e: Env) -> Binary;
+    fn name(e: Env) -> Bytes;
 
-    fn symbol(e: Env) -> Binary;
+    fn symbol(e: Env) -> Bytes;
 }
 
 pub struct Token;
 
 #[contractimpl(export_if = "export")]
 impl TokenTrait for Token {
-    fn initialize(e: Env, admin: Identifier, decimal: u32, name: Binary, symbol: Binary) {
+    fn initialize(e: Env, admin: Identifier, decimal: u32, name: Bytes, symbol: Bytes) {
         if has_administrator(&e) {
             panic!("already initialized")
         }
@@ -172,11 +172,11 @@ impl TokenTrait for Token {
         read_decimal(&e)
     }
 
-    fn name(e: Env) -> Binary {
+    fn name(e: Env) -> Bytes {
         read_name(&e)
     }
 
-    fn symbol(e: Env) -> Binary {
+    fn symbol(e: Env) -> Bytes {
         read_symbol(&e)
     }
 }

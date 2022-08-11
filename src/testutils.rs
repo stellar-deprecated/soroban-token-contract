@@ -7,10 +7,10 @@ use crate::public_types::{
 use crate::*;
 use ed25519_dalek::Keypair;
 use soroban_sdk::testutils::ed25519::Sign;
-use soroban_sdk::{BigInt, Binary, Env, EnvVal, FixedBinary, IntoVal, Vec};
+use soroban_sdk::{BigInt, Bytes, Env, EnvVal, BytesN, IntoVal, Vec};
 
 pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
-    let contract_id = FixedBinary::from_array(e, *contract_id);
+    let contract_id = BytesN::from_array(e, *contract_id);
     e.register_contract(&contract_id, crate::contract::Token {});
 }
 
@@ -20,20 +20,20 @@ pub fn to_ed25519(e: &Env, kp: &Keypair) -> Identifier {
 
 pub struct Token {
     env: Env,
-    contract_id: FixedBinary<32>,
+    contract_id: BytesN<32>,
 }
 
 impl Token {
     pub fn new(env: &Env, contract_id: &[u8; 32]) -> Self {
         Self {
             env: env.clone(),
-            contract_id: FixedBinary::from_array(env, *contract_id),
+            contract_id: BytesN::from_array(env, *contract_id),
         }
     }
 
     pub fn initialize(&self, admin: &Identifier, decimals: u32, name: &str, symbol: &str) {
-        let name: Binary = name.into_val(&self.env);
-        let symbol: Binary = symbol.into_val(&self.env);
+        let name: Bytes = name.into_val(&self.env);
+        let symbol: Bytes = symbol.into_val(&self.env);
         initialize(
             &self.env,
             &self.contract_id,
@@ -86,7 +86,7 @@ impl Token {
             parameters: args,
         });
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
-            public_key: FixedBinary::from_array(&self.env, from.public.to_bytes()),
+            public_key: BytesN::from_array(&self.env, from.public.to_bytes()),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
         xfer(&self.env, &self.contract_id, &auth, to, amount)
@@ -181,11 +181,11 @@ impl Token {
         decimals(&self.env, &self.contract_id)
     }
 
-    pub fn name(&self) -> Binary {
+    pub fn name(&self) -> Bytes {
         name(&self.env, &self.contract_id)
     }
 
-    pub fn symbol(&self) -> Binary {
+    pub fn symbol(&self) -> Bytes {
         symbol(&self.env, &self.contract_id)
     }
 }
