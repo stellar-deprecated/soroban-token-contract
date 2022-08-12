@@ -27,10 +27,14 @@ soroban-token-contract = { path = ".", features = ["export", "testutils"] }
 rand = { version = "0.7.3" }
 
 [patch.crates-io]
-soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "41eb2165" }
-soroban-sdk-macros = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "41eb2165" }
-# soroban-sdk = { path = "../rs-soroban-sdk/sdk" }
-# soroban-sdk-macros = { path = "../rs-soroban-sdk/macros" }
+soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "04d4358" }
+soroban-sdk-macros = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "04d4358" }
+soroban-env-common = { git = "https://github.com/stellar/rs-soroban-env", rev = "556c75f" }
+soroban-env-guest = { git = "https://github.com/stellar/rs-soroban-env", rev = "556c75f" }
+soroban-env-host = { git = "https://github.com/stellar/rs-soroban-env", rev = "556c75f" }
+soroban-env-macros = { git = "https://github.com/stellar/rs-soroban-env", rev = "556c75f" }
+soroban-native-sdk-macros = { git = "https://github.com/stellar/rs-soroban-env", rev = "556c75f" }
+stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "3eca5ce" }
 
 [profile.release]
 codegen-units = 1
