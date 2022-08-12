@@ -1,4 +1,4 @@
-use soroban_sdk::{contracttype, BigInt, Env, EnvVal, BytesN, Vec};
+use soroban_sdk::{contracttype, BigInt, BytesN, Env, EnvVal, Vec};
 
 pub type U256 = BytesN<32>;
 pub type U512 = BytesN<64>;

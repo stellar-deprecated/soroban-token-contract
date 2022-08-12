@@ -7,7 +7,7 @@ use crate::public_types::{
 use crate::*;
 use ed25519_dalek::Keypair;
 use soroban_sdk::testutils::ed25519::Sign;
-use soroban_sdk::{BigInt, Bytes, Env, EnvVal, BytesN, IntoVal, Vec};
+use soroban_sdk::{BigInt, Bytes, BytesN, Env, EnvVal, IntoVal, Vec};
 
 pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
     let contract_id = BytesN::from_array(e, *contract_id);
