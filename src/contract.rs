@@ -52,7 +52,7 @@ pub trait TokenTrait {
 
 pub struct Token;
 
-#[contractimpl(export_if = "export")]
+#[contractimpl(export)]
 impl TokenTrait for Token {
     fn initialize(e: Env, admin: Identifier, decimal: u32, name: Bytes, symbol: Bytes) {
         if has_administrator(&e) {
