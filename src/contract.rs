@@ -1,14 +1,14 @@
-use crate::admin::{has_administrator, to_administrator_authorization, write_administrator};
+use crate::admin::{check_admin, has_administrator, write_administrator};
 use crate::allowance::{read_allowance, spend_allowance, write_allowance};
 use crate::balance::{read_balance, receive_balance, spend_balance};
 use crate::balance::{read_state, write_state};
-use crate::cryptography::{check_auth, Domain};
 use crate::metadata::{
     read_decimal, read_name, read_symbol, write_decimal, write_name, write_symbol,
 };
-use crate::nonce::read_nonce;
-use crate::public_types::{Authorization, Identifier, KeyedAuthorization};
-use soroban_sdk::{contractimpl, BigInt, Bytes, Env, IntoVal};
+use crate::storage_types::DataKey;
+use soroban_authorization_contract::cryptography::{check_auth, NonceAuth};
+use soroban_authorization_contract::public_types::{Identifier, KeyedAuthorization};
+use soroban_sdk::{contractimpl, BigInt, Bytes, Env, IntoVal, Symbol};
 
 pub trait TokenTrait {
     fn initialize(e: Env, admin: Identifier, decimal: u32, name: Bytes, symbol: Bytes);
@@ -17,37 +17,69 @@ pub trait TokenTrait {
 
     fn allowance(e: Env, from: Identifier, spender: Identifier) -> BigInt;
 
-    fn approve(e: Env, from: KeyedAuthorization, spender: Identifier, amount: BigInt);
+    fn approve(
+        e: Env,
+        from: KeyedAuthorization,
+        nonce: BigInt,
+        spender: Identifier,
+        amount: BigInt,
+    );
 
     fn balance(e: Env, id: Identifier) -> BigInt;
 
     fn is_frozen(e: Env, id: Identifier) -> bool;
 
-    fn xfer(e: Env, from: KeyedAuthorization, to: Identifier, amount: BigInt);
+    fn xfer(e: Env, from: KeyedAuthorization, nonce: BigInt, to: Identifier, amount: BigInt);
 
     fn xfer_from(
         e: Env,
         spender: KeyedAuthorization,
+        nonce: BigInt,
         from: Identifier,
         to: Identifier,
         amount: BigInt,
     );
 
-    fn burn(e: Env, admin: Authorization, from: Identifier, amount: BigInt);
+    fn burn(e: Env, admin: KeyedAuthorization, nonce: BigInt, from: Identifier, amount: BigInt);
 
-    fn freeze(e: Env, admin: Authorization, id: Identifier);
+    fn freeze(e: Env, admin: KeyedAuthorization, nonce: BigInt, id: Identifier);
 
-    fn mint(e: Env, admin: Authorization, to: Identifier, amount: BigInt);
+    fn mint(e: Env, admin: KeyedAuthorization, nonce: BigInt, to: Identifier, amount: BigInt);
 
-    fn set_admin(e: Env, admin: Authorization, new_admin: Identifier);
+    fn set_admin(e: Env, admin: KeyedAuthorization, nonce: BigInt, new_admin: Identifier);
 
-    fn unfreeze(e: Env, admin: Authorization, id: Identifier);
+    fn unfreeze(e: Env, admin: KeyedAuthorization, nonce: BigInt, id: Identifier);
 
     fn decimals(e: Env) -> u32;
 
     fn name(e: Env) -> Bytes;
 
     fn symbol(e: Env) -> Bytes;
+}
+
+struct WrappedAuth(KeyedAuthorization);
+
+impl NonceAuth for WrappedAuth {
+    fn read_nonce(e: &Env, id: Identifier) -> BigInt {
+        let key = DataKey::Nonce(id);
+        if let Some(nonce) = e.contract_data().get(key) {
+            nonce.unwrap()
+        } else {
+            BigInt::zero(e)
+        }
+    }
+
+    fn read_and_increment_nonce(&self, e: &Env, id: Identifier) -> BigInt {
+        let key = DataKey::Nonce(id.clone());
+        let nonce = Self::read_nonce(e, id);
+        e.contract_data()
+            .set(key, nonce.clone() + BigInt::from_u32(e, 1));
+        nonce
+    }
+
+    fn get_keyed_auth(&self) -> &KeyedAuthorization {
+        &self.0
+    }
 }
 
 pub struct Token;
@@ -67,20 +99,27 @@ impl TokenTrait for Token {
     }
 
     fn nonce(e: Env, id: Identifier) -> BigInt {
-        read_nonce(&e, id)
+        <WrappedAuth as NonceAuth>::read_nonce(&e, id)
     }
 
     fn allowance(e: Env, from: Identifier, spender: Identifier) -> BigInt {
         read_allowance(&e, from, spender)
     }
 
-    fn approve(e: Env, from: KeyedAuthorization, spender: Identifier, amount: BigInt) {
+    fn approve(
+        e: Env,
+        from: KeyedAuthorization,
+        nonce: BigInt,
+        spender: Identifier,
+        amount: BigInt,
+    ) {
         let from_id = from.get_identifier(&e);
         check_auth(
             &e,
-            from,
-            Domain::Approve,
-            (spender.clone(), amount.clone()).into_val(&e),
+            &WrappedAuth(from),
+            nonce.clone(),
+            Symbol::from_str("approve"),
+            (nonce, spender.clone(), amount.clone()).into_val(&e),
         );
         write_allowance(&e, from_id, spender, amount);
     }
@@ -93,13 +132,14 @@ impl TokenTrait for Token {
         read_state(&e, id)
     }
 
-    fn xfer(e: Env, from: KeyedAuthorization, to: Identifier, amount: BigInt) {
+    fn xfer(e: Env, from: KeyedAuthorization, nonce: BigInt, to: Identifier, amount: BigInt) {
         let from_id = from.get_identifier(&e);
         check_auth(
             &e,
-            from,
-            Domain::Transfer,
-            (to.clone(), amount.clone()).into_val(&e),
+            &WrappedAuth(from),
+            nonce.clone(),
+            Symbol::from_str("xfer"),
+            (nonce, to.clone(), amount.clone()).into_val(&e),
         );
         spend_balance(&e, from_id, amount.clone());
         receive_balance(&e, to, amount);
@@ -108,6 +148,7 @@ impl TokenTrait for Token {
     fn xfer_from(
         e: Env,
         spender: KeyedAuthorization,
+        nonce: BigInt,
         from: Identifier,
         to: Identifier,
         amount: BigInt,
@@ -115,57 +156,78 @@ impl TokenTrait for Token {
         let spender_id = spender.get_identifier(&e);
         check_auth(
             &e,
-            spender,
-            Domain::TransferFrom,
-            (from.clone(), to.clone(), amount.clone()).into_val(&e),
+            &WrappedAuth(spender),
+            nonce.clone(),
+            Symbol::from_str("xfer_from"),
+            (nonce, from.clone(), to.clone(), amount.clone()).into_val(&e),
         );
         spend_allowance(&e, from.clone(), spender_id, amount.clone());
         spend_balance(&e, from, amount.clone());
         receive_balance(&e, to, amount);
     }
 
-    fn burn(e: Env, admin: Authorization, from: Identifier, amount: BigInt) {
-        let auth = to_administrator_authorization(&e, admin);
+    fn burn(e: Env, admin: KeyedAuthorization, nonce: BigInt, from: Identifier, amount: BigInt) {
+        check_admin(&e, &admin);
+
         check_auth(
             &e,
-            auth,
-            Domain::Burn,
-            (from.clone(), amount.clone()).into_val(&e),
+            &WrappedAuth(admin),
+            nonce.clone(),
+            Symbol::from_str("burn"),
+            (nonce, from.clone(), amount.clone()).into_val(&e),
         );
         spend_balance(&e, from, amount);
     }
 
-    fn freeze(e: Env, admin: Authorization, id: Identifier) {
-        let auth = to_administrator_authorization(&e, admin);
-        check_auth(&e, auth, Domain::Freeze, (id.clone(),).into_val(&e));
+    fn freeze(e: Env, admin: KeyedAuthorization, nonce: BigInt, id: Identifier) {
+        check_admin(&e, &admin);
+
+        check_auth(
+            &e,
+            &WrappedAuth(admin),
+            nonce.clone(),
+            Symbol::from_str("freeze"),
+            (nonce, id.clone()).into_val(&e),
+        );
         write_state(&e, id, true);
     }
 
-    fn mint(e: Env, admin: Authorization, to: Identifier, amount: BigInt) {
-        let auth = to_administrator_authorization(&e, admin);
+    fn mint(e: Env, admin: KeyedAuthorization, nonce: BigInt, to: Identifier, amount: BigInt) {
+        check_admin(&e, &admin);
+
         check_auth(
             &e,
-            auth,
-            Domain::Mint,
-            (to.clone(), amount.clone()).into_val(&e),
+            &WrappedAuth(admin),
+            nonce.clone(),
+            Symbol::from_str("mint"),
+            (nonce, to.clone(), amount.clone()).into_val(&e),
         );
         receive_balance(&e, to, amount);
     }
 
-    fn set_admin(e: Env, admin: Authorization, new_admin: Identifier) {
-        let auth = to_administrator_authorization(&e, admin);
+    fn set_admin(e: Env, admin: KeyedAuthorization, nonce: BigInt, new_admin: Identifier) {
+        check_admin(&e, &admin);
+
         check_auth(
             &e,
-            auth,
-            Domain::SetAdministrator,
-            (new_admin.clone(),).into_val(&e),
+            &WrappedAuth(admin),
+            nonce.clone(),
+            Symbol::from_str("set_admin"),
+            (nonce, new_admin.clone()).into_val(&e),
         );
         write_administrator(&e, new_admin);
     }
 
-    fn unfreeze(e: Env, admin: Authorization, id: Identifier) {
-        let auth = to_administrator_authorization(&e, admin);
-        check_auth(&e, auth, Domain::Unfreeze, (id.clone(),).into_val(&e));
+    fn unfreeze(e: Env, admin: KeyedAuthorization, nonce: BigInt, id: Identifier) {
+        check_admin(&e, &admin);
+
+        check_auth(
+            &e,
+            &WrappedAuth(admin),
+            nonce.clone(),
+            Symbol::from_str("unfreeze"),
+            (nonce, id.clone()).into_val(&e),
+        );
         write_state(&e, id, false);
     }
 

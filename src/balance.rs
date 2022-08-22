@@ -1,5 +1,5 @@
-use crate::public_types::Identifier;
 use crate::storage_types::DataKey;
+use soroban_authorization_contract::public_types::Identifier;
 use soroban_sdk::{BigInt, Env};
 
 pub fn read_balance(e: &Env, id: Identifier) -> BigInt {

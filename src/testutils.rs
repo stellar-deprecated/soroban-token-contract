@@ -1,13 +1,12 @@
 #![cfg(feature = "testutils")]
 
-use crate::cryptography::Domain;
-use crate::public_types::{
-    Authorization, Identifier, KeyedAuthorization, KeyedEd25519Signature, Message, MessageV0,
-};
 use crate::*;
 use ed25519_dalek::Keypair;
+use soroban_authorization_contract::public_types::{
+    Identifier, KeyedAuthorization, KeyedEd25519Signature, Message, MessageV0,
+};
 use soroban_sdk::testutils::ed25519::Sign;
-use soroban_sdk::{BigInt, Bytes, BytesN, Env, EnvVal, IntoVal, Vec};
+use soroban_sdk::{BigInt, Bytes, BytesN, Env, EnvVal, IntoVal, Symbol, Vec};
 
 pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
     let contract_id = BytesN::from_array(e, *contract_id);
@@ -53,19 +52,26 @@ impl Token {
     }
 
     pub fn approve(&self, from: &Keypair, spender: &Identifier, amount: &BigInt) {
+        let from_id = to_ed25519(&self.env, from);
+        let nonce = self.nonce(&from_id);
+
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_env_val(&self.env));
         args.push(spender.clone().into_env_val(&self.env));
         args.push(amount.clone().into_env_val(&self.env));
+
         let msg = Message::V0(MessageV0 {
-            nonce: self.nonce(&to_ed25519(&self.env, from)),
-            domain: Domain::Approve as u32,
+            function: Symbol::from_str("approve"),
+            contrct_id: self.contract_id.clone(),
+            network_id: self.env.ledger().network_passphrase(),
             parameters: args,
         });
+
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
             public_key: from.public.to_bytes().into_val(&self.env),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
-        approve(&self.env, &self.contract_id, &auth, spender, amount)
+        approve(&self.env, &self.contract_id, &auth, &nonce, spender, amount)
     }
 
     pub fn balance(&self, id: &Identifier) -> BigInt {
@@ -77,19 +83,25 @@ impl Token {
     }
 
     pub fn xfer(&self, from: &Keypair, to: &Identifier, amount: &BigInt) {
+        let from_id = to_ed25519(&self.env, from);
+        let nonce = self.nonce(&from_id);
+
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_env_val(&self.env));
         args.push(to.clone().into_env_val(&self.env));
         args.push(amount.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
-            nonce: self.nonce(&to_ed25519(&self.env, from)),
-            domain: Domain::Transfer as u32,
+            function: Symbol::from_str("xfer"),
+            contrct_id: self.contract_id.clone(),
+            network_id: self.env.ledger().network_passphrase(),
             parameters: args,
         });
+
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
             public_key: BytesN::from_array(&self.env, from.public.to_bytes()),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
-        xfer(&self.env, &self.contract_id, &auth, to, amount)
+        xfer(&self.env, &self.contract_id, &auth, &nonce, to, amount)
     }
 
     pub fn xfer_from(
@@ -99,82 +111,137 @@ impl Token {
         to: &Identifier,
         amount: &BigInt,
     ) {
+        let spender_id = to_ed25519(&self.env, spender);
+        let nonce = self.nonce(&spender_id);
+
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_env_val(&self.env));
         args.push(from.clone().into_env_val(&self.env));
         args.push(to.clone().into_env_val(&self.env));
         args.push(amount.clone().into_env_val(&self.env));
+
         let msg = Message::V0(MessageV0 {
-            nonce: self.nonce(&to_ed25519(&self.env, spender)),
-            domain: Domain::TransferFrom as u32,
+            function: Symbol::from_str("xfer_from"),
+            contrct_id: self.contract_id.clone(),
+            network_id: self.env.ledger().network_passphrase(),
             parameters: args,
         });
+
         let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
             public_key: spender.public.to_bytes().into_val(&self.env),
             signature: spender.sign(msg).unwrap().into_val(&self.env),
         });
-        xfer_from(&self.env, &self.contract_id, &auth, from, to, amount)
+        xfer_from(
+            &self.env,
+            &self.contract_id,
+            &auth,
+            &nonce,
+            from,
+            to,
+            amount,
+        )
     }
 
     pub fn burn(&self, admin: &Keypair, from: &Identifier, amount: &BigInt) {
+        let admin_id = to_ed25519(&self.env, admin);
+        let nonce = self.nonce(&admin_id);
+
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_env_val(&self.env));
         args.push(from.clone().into_env_val(&self.env));
         args.push(amount.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
-            nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: Domain::Burn as u32,
+            function: Symbol::from_str("burn"),
+            contrct_id: self.contract_id.clone(),
+            network_id: self.env.ledger().network_passphrase(),
             parameters: args,
         });
-        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        burn(&self.env, &self.contract_id, &auth, from, amount)
+        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+            public_key: admin.public.to_bytes().into_val(&self.env),
+            signature: admin.sign(msg).unwrap().into_val(&self.env),
+        });
+        burn(&self.env, &self.contract_id, &auth, &nonce, from, amount)
     }
 
     pub fn freeze(&self, admin: &Keypair, id: &Identifier) {
+        let admin_id = to_ed25519(&self.env, admin);
+        let nonce = self.nonce(&admin_id);
+
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_env_val(&self.env));
         args.push(id.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
-            nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: Domain::Freeze as u32,
+            function: Symbol::from_str("freeze"),
+            contrct_id: self.contract_id.clone(),
+            network_id: self.env.ledger().network_passphrase(),
             parameters: args,
         });
-        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        freeze(&self.env, &self.contract_id, &auth, id)
+        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+            public_key: admin.public.to_bytes().into_val(&self.env),
+            signature: admin.sign(msg).unwrap().into_val(&self.env),
+        });
+        freeze(&self.env, &self.contract_id, &auth, &nonce, id)
     }
 
     pub fn mint(&self, admin: &Keypair, to: &Identifier, amount: &BigInt) {
+        let admin_id = to_ed25519(&self.env, admin);
+        let nonce = self.nonce(&admin_id);
+
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_env_val(&self.env));
         args.push(to.clone().into_env_val(&self.env));
         args.push(amount.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
-            nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: Domain::Mint as u32,
+            function: Symbol::from_str("mint"),
+            contrct_id: self.contract_id.clone(),
+            network_id: self.env.ledger().network_passphrase(),
             parameters: args,
         });
-        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        mint(&self.env, &self.contract_id, &auth, to, amount)
+        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+            public_key: admin.public.to_bytes().into_val(&self.env),
+            signature: admin.sign(msg).unwrap().into_val(&self.env),
+        });
+        mint(&self.env, &self.contract_id, &auth, &nonce, to, amount)
     }
 
     pub fn set_admin(&self, admin: &Keypair, new_admin: &Identifier) {
+        let admin_id = to_ed25519(&self.env, admin);
+        let nonce = self.nonce(&admin_id);
+
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_env_val(&self.env));
         args.push(new_admin.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
-            nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: Domain::SetAdministrator as u32,
+            function: Symbol::from_str("set_admin"),
+            contrct_id: self.contract_id.clone(),
+            network_id: self.env.ledger().network_passphrase(),
             parameters: args,
         });
-        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        set_admin(&self.env, &self.contract_id, &auth, new_admin)
+        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+            public_key: admin.public.to_bytes().into_val(&self.env),
+            signature: admin.sign(msg).unwrap().into_val(&self.env),
+        });
+        set_admin(&self.env, &self.contract_id, &auth, &nonce, new_admin)
     }
 
     pub fn unfreeze(&self, admin: &Keypair, id: &Identifier) {
+        let admin_id = to_ed25519(&self.env, admin);
+        let nonce = self.nonce(&admin_id);
+
         let mut args: Vec<EnvVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_env_val(&self.env));
         args.push(id.clone().into_env_val(&self.env));
         let msg = Message::V0(MessageV0 {
-            nonce: self.nonce(&to_ed25519(&self.env, admin)),
-            domain: Domain::Unfreeze as u32,
+            function: Symbol::from_str("unfreeze"),
+            contrct_id: self.contract_id.clone(),
+            network_id: self.env.ledger().network_passphrase(),
             parameters: args,
         });
-        let auth = Authorization::Ed25519(admin.sign(msg).unwrap().into_val(&self.env));
-        unfreeze(&self.env, &self.contract_id, &auth, id)
+        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+            public_key: admin.public.to_bytes().into_val(&self.env),
+            signature: admin.sign(msg).unwrap().into_val(&self.env),
+        });
+        unfreeze(&self.env, &self.contract_id, &auth, &nonce, id)
     }
 
     pub fn decimals(&self) -> u32 {

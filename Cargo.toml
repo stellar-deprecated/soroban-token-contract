@@ -15,26 +15,28 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = ["export"]
 export = []
-testutils = ["soroban-sdk/testutils", "dep:ed25519-dalek"]
+testutils = ["soroban-sdk/testutils", "soroban-authorization-contract/testutils", "dep:ed25519-dalek"]
 
 [dependencies]
 ed25519-dalek = { version = "1.0.1", optional = true }
 num-bigint = { version = "0.4", optional = true }
 soroban-sdk = { version = "0.0.3" }
+soroban-authorization-contract = { git = "https://github.com/stellar/soroban-examples", rev = "6744474", default-features = false }
+#soroban-authorization-contract = { path = "../rs-stellar-liqpool-example/authorization" }
 
 [dev-dependencies]
 soroban-token-contract = { path = ".", features = ["export", "testutils"] }
 rand = { version = "0.7.3" }
 
 [patch.crates-io]
-soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "bba4039" }
-soroban-sdk-macros = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "bba4039" }
-soroban-env-common = { git = "https://github.com/stellar/rs-soroban-env", rev = "7395b81" }
-soroban-env-guest = { git = "https://github.com/stellar/rs-soroban-env", rev = "7395b81" }
-soroban-env-host = { git = "https://github.com/stellar/rs-soroban-env", rev = "7395b81" }
-soroban-env-macros = { git = "https://github.com/stellar/rs-soroban-env", rev = "7395b81" }
-soroban-native-sdk-macros = { git = "https://github.com/stellar/rs-soroban-env", rev = "7395b81" }
-stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "dbfb606" }
+soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "d2b06c2" }
+soroban-sdk-macros = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "d2b06c2" }
+soroban-env-common = { git = "https://github.com/stellar/rs-soroban-env", rev = "4c288ce" }
+soroban-env-guest = { git = "https://github.com/stellar/rs-soroban-env", rev = "4c288ce" }
+soroban-env-host = { git = "https://github.com/stellar/rs-soroban-env", rev = "4c288ce" }
+soroban-env-macros = { git = "https://github.com/stellar/rs-soroban-env", rev = "4c288ce" }
+soroban-native-sdk-macros = { git = "https://github.com/stellar/rs-soroban-env", rev = "4c288ce" }
+stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "61de11d" }
 
 [profile.release]
 codegen-units = 1
