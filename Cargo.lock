@@ -538,9 +538,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "soroban-authorization-contract"
+version = "0.0.0"
+source = "git+https://github.com/stellar/soroban-examples?rev=6744474#6744474115e7d8dfc1bd8339db01a89c981d6e79"
+dependencies = [
+ "ed25519-dalek",
+ "soroban-sdk",
+]
+
+[[package]]
 name = "soroban-env-common"
 version = "0.0.3"
-source = "git+https://github.com/stellar/rs-soroban-env?rev=7395b81#7395b8108b7eae28a2a068a0f3b75a5f824ee515"
+source = "git+https://github.com/stellar/rs-soroban-env?rev=4c288ce#4c288cec87229fd660e4a27fa233532c8cfed998"
 dependencies = [
  "soroban-env-macros",
  "soroban-wasmi",
@@ -551,7 +560,7 @@ dependencies = [
 [[package]]
 name = "soroban-env-guest"
 version = "0.0.3"
-source = "git+https://github.com/stellar/rs-soroban-env?rev=7395b81#7395b8108b7eae28a2a068a0f3b75a5f824ee515"
+source = "git+https://github.com/stellar/rs-soroban-env?rev=4c288ce#4c288cec87229fd660e4a27fa233532c8cfed998"
 dependencies = [
  "soroban-env-common",
  "static_assertions",
@@ -560,7 +569,7 @@ dependencies = [
 [[package]]
 name = "soroban-env-host"
 version = "0.0.3"
-source = "git+https://github.com/stellar/rs-soroban-env?rev=7395b81#7395b8108b7eae28a2a068a0f3b75a5f824ee515"
+source = "git+https://github.com/stellar/rs-soroban-env?rev=4c288ce#4c288cec87229fd660e4a27fa233532c8cfed998"
 dependencies = [
  "backtrace",
  "dyn-fmt",
@@ -584,7 +593,7 @@ dependencies = [
 [[package]]
 name = "soroban-env-macros"
 version = "0.0.3"
-source = "git+https://github.com/stellar/rs-soroban-env?rev=7395b81#7395b8108b7eae28a2a068a0f3b75a5f824ee515"
+source = "git+https://github.com/stellar/rs-soroban-env?rev=4c288ce#4c288cec87229fd660e4a27fa233532c8cfed998"
 dependencies = [
  "itertools",
  "proc-macro2",
@@ -596,7 +605,7 @@ dependencies = [
 [[package]]
 name = "soroban-native-sdk-macros"
 version = "0.0.1"
-source = "git+https://github.com/stellar/rs-soroban-env?rev=7395b81#7395b8108b7eae28a2a068a0f3b75a5f824ee515"
+source = "git+https://github.com/stellar/rs-soroban-env?rev=4c288ce#4c288cec87229fd660e4a27fa233532c8cfed998"
 dependencies = [
  "itertools",
  "proc-macro2",
@@ -607,7 +616,7 @@ dependencies = [
 [[package]]
 name = "soroban-sdk"
 version = "0.0.3"
-source = "git+https://github.com/stellar/rs-soroban-sdk?rev=bba4039#bba4039966263f609ceefbf5b30a43361eecaa01"
+source = "git+https://github.com/stellar/rs-soroban-sdk?rev=d2b06c2#d2b06c2e23027f6748079303baffba2979ebdffa"
 dependencies = [
  "ed25519-dalek",
  "soroban-env-guest",
@@ -618,13 +627,14 @@ dependencies = [
 [[package]]
 name = "soroban-sdk-macros"
 version = "0.0.3"
-source = "git+https://github.com/stellar/rs-soroban-sdk?rev=bba4039#bba4039966263f609ceefbf5b30a43361eecaa01"
+source = "git+https://github.com/stellar/rs-soroban-sdk?rev=d2b06c2#d2b06c2e23027f6748079303baffba2979ebdffa"
 dependencies = [
  "darling",
  "itertools",
  "proc-macro2",
  "quote",
  "sha2 0.10.2",
+ "soroban-env-common",
  "soroban-spec",
  "stellar-xdr",
  "syn",
@@ -633,7 +643,7 @@ dependencies = [
 [[package]]
 name = "soroban-spec"
 version = "0.0.1"
-source = "git+https://github.com/stellar/rs-soroban-sdk?rev=bba4039#bba4039966263f609ceefbf5b30a43361eecaa01"
+source = "git+https://github.com/stellar/rs-soroban-sdk?rev=d2b06c2#d2b06c2e23027f6748079303baffba2979ebdffa"
 dependencies = [
  "base64",
  "darling",
@@ -654,6 +664,7 @@ dependencies = [
  "ed25519-dalek",
  "num-bigint",
  "rand",
+ "soroban-authorization-contract",
  "soroban-sdk",
  "soroban-token-contract",
 ]
@@ -701,7 +712,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "stellar-xdr"
 version = "0.0.1"
-source = "git+https://github.com/stellar/rs-stellar-xdr?rev=dbfb606#dbfb60607cf215e3ac894cd247170a4c688360d5"
+source = "git+https://github.com/stellar/rs-stellar-xdr?rev=61de11d#61de11d0ce5eb8a6e722d903af2abfadb5f5bd0e"
 
 [[package]]
 name = "strsim"

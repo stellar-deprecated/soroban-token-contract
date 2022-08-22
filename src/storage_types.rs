@@ -1,4 +1,4 @@
-use crate::public_types::Identifier;
+use soroban_authorization_contract::public_types::Identifier;
 use soroban_sdk::contracttype;
 
 #[derive(Clone)]

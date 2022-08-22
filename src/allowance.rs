@@ -1,5 +1,5 @@
-use crate::public_types::Identifier;
 use crate::storage_types::{AllowanceDataKey, DataKey};
+use soroban_authorization_contract::public_types::Identifier;
 use soroban_sdk::{BigInt, Env};
 
 pub fn read_allowance(e: &Env, from: Identifier, spender: Identifier) -> BigInt {
