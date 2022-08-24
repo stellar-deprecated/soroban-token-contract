@@ -1,6 +1,6 @@
 use crate::storage_types::DataKey;
-use soroban_authorization_contract::public_types::{Identifier, KeyedAuthorization};
 use soroban_sdk::Env;
+use soroban_sdk_auth::public_types::{Identifier, Signature};
 
 pub fn has_administrator(e: &Env) -> bool {
     let key = DataKey::Admin;
@@ -17,7 +17,7 @@ pub fn write_administrator(e: &Env, id: Identifier) {
     e.contract_data().set(key, id);
 }
 
-pub fn check_admin(e: &Env, auth: &KeyedAuthorization) {
+pub fn check_admin(e: &Env, auth: &Signature) {
     let auth_id = auth.get_identifier(&e);
     if auth_id != read_administrator(&e) {
         panic!("not authorized by admin")

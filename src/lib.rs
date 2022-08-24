@@ -12,8 +12,6 @@ mod metadata;
 mod storage_types;
 pub mod testutils;
 
-pub use soroban_authorization_contract;
-
 pub use crate::contract::allowance::invoke as allowance;
 pub use crate::contract::approve::invoke as approve;
 pub use crate::contract::balance::invoke as balance;
