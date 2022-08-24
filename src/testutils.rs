@@ -2,14 +2,12 @@
 
 use crate::*;
 use ed25519_dalek::Keypair;
-use soroban_authorization_contract::public_types::{
-    Identifier, KeyedAuthorization, KeyedEd25519Signature, Message, MessageV0,
-};
 use soroban_sdk::testutils::ed25519::Sign;
-use soroban_sdk::{BigInt, Bytes, BytesN, Env, EnvVal, IntoVal, Symbol, Vec};
+use soroban_sdk::{BigInt, Bytes, BytesN, Env, IntoVal, RawVal, Symbol, Vec};
+use soroban_sdk_auth::public_types::{Ed25519Signature, Identifier, Message, MessageV0, Signature};
 
 pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
-    let contract_id = BytesN::from_array(e, *contract_id);
+    let contract_id = BytesN::from_array(e, contract_id);
     e.register_contract(&contract_id, crate::contract::Token {});
 }
 
@@ -26,7 +24,7 @@ impl Token {
     pub fn new(env: &Env, contract_id: &[u8; 32]) -> Self {
         Self {
             env: env.clone(),
-            contract_id: BytesN::from_array(env, *contract_id),
+            contract_id: BytesN::from_array(env, contract_id),
         }
     }
 
@@ -55,19 +53,19 @@ impl Token {
         let from_id = to_ed25519(&self.env, from);
         let nonce = self.nonce(&from_id);
 
-        let mut args: Vec<EnvVal> = Vec::new(&self.env);
-        args.push(nonce.clone().into_env_val(&self.env));
-        args.push(spender.clone().into_env_val(&self.env));
-        args.push(amount.clone().into_env_val(&self.env));
+        let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_val(&self.env));
+        args.push(spender.clone().into_val(&self.env));
+        args.push(amount.clone().into_val(&self.env));
 
         let msg = Message::V0(MessageV0 {
             function: Symbol::from_str("approve"),
             contrct_id: self.contract_id.clone(),
             network_id: self.env.ledger().network_passphrase(),
-            parameters: args,
+            args,
         });
 
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+        let auth = Signature::Ed25519(Ed25519Signature {
             public_key: from.public.to_bytes().into_val(&self.env),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
@@ -86,19 +84,19 @@ impl Token {
         let from_id = to_ed25519(&self.env, from);
         let nonce = self.nonce(&from_id);
 
-        let mut args: Vec<EnvVal> = Vec::new(&self.env);
-        args.push(nonce.clone().into_env_val(&self.env));
-        args.push(to.clone().into_env_val(&self.env));
-        args.push(amount.clone().into_env_val(&self.env));
+        let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_val(&self.env));
+        args.push(to.clone().into_val(&self.env));
+        args.push(amount.clone().into_val(&self.env));
         let msg = Message::V0(MessageV0 {
             function: Symbol::from_str("xfer"),
             contrct_id: self.contract_id.clone(),
             network_id: self.env.ledger().network_passphrase(),
-            parameters: args,
+            args,
         });
 
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
-            public_key: BytesN::from_array(&self.env, from.public.to_bytes()),
+        let auth = Signature::Ed25519(Ed25519Signature {
+            public_key: BytesN::from_array(&self.env, &from.public.to_bytes()),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
         xfer(&self.env, &self.contract_id, &auth, &nonce, to, amount)
@@ -114,20 +112,20 @@ impl Token {
         let spender_id = to_ed25519(&self.env, spender);
         let nonce = self.nonce(&spender_id);
 
-        let mut args: Vec<EnvVal> = Vec::new(&self.env);
-        args.push(nonce.clone().into_env_val(&self.env));
-        args.push(from.clone().into_env_val(&self.env));
-        args.push(to.clone().into_env_val(&self.env));
-        args.push(amount.clone().into_env_val(&self.env));
+        let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_val(&self.env));
+        args.push(from.clone().into_val(&self.env));
+        args.push(to.clone().into_val(&self.env));
+        args.push(amount.clone().into_val(&self.env));
 
         let msg = Message::V0(MessageV0 {
             function: Symbol::from_str("xfer_from"),
             contrct_id: self.contract_id.clone(),
             network_id: self.env.ledger().network_passphrase(),
-            parameters: args,
+            args,
         });
 
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+        let auth = Signature::Ed25519(Ed25519Signature {
             public_key: spender.public.to_bytes().into_val(&self.env),
             signature: spender.sign(msg).unwrap().into_val(&self.env),
         });
@@ -146,17 +144,17 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<EnvVal> = Vec::new(&self.env);
-        args.push(nonce.clone().into_env_val(&self.env));
-        args.push(from.clone().into_env_val(&self.env));
-        args.push(amount.clone().into_env_val(&self.env));
+        let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_val(&self.env));
+        args.push(from.clone().into_val(&self.env));
+        args.push(amount.clone().into_val(&self.env));
         let msg = Message::V0(MessageV0 {
             function: Symbol::from_str("burn"),
             contrct_id: self.contract_id.clone(),
             network_id: self.env.ledger().network_passphrase(),
-            parameters: args,
+            args,
         });
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+        let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });
@@ -167,16 +165,16 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<EnvVal> = Vec::new(&self.env);
-        args.push(nonce.clone().into_env_val(&self.env));
-        args.push(id.clone().into_env_val(&self.env));
+        let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_val(&self.env));
+        args.push(id.clone().into_val(&self.env));
         let msg = Message::V0(MessageV0 {
             function: Symbol::from_str("freeze"),
             contrct_id: self.contract_id.clone(),
             network_id: self.env.ledger().network_passphrase(),
-            parameters: args,
+            args,
         });
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+        let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });
@@ -187,17 +185,17 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<EnvVal> = Vec::new(&self.env);
-        args.push(nonce.clone().into_env_val(&self.env));
-        args.push(to.clone().into_env_val(&self.env));
-        args.push(amount.clone().into_env_val(&self.env));
+        let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_val(&self.env));
+        args.push(to.clone().into_val(&self.env));
+        args.push(amount.clone().into_val(&self.env));
         let msg = Message::V0(MessageV0 {
             function: Symbol::from_str("mint"),
             contrct_id: self.contract_id.clone(),
             network_id: self.env.ledger().network_passphrase(),
-            parameters: args,
+            args,
         });
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+        let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });
@@ -208,16 +206,16 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<EnvVal> = Vec::new(&self.env);
-        args.push(nonce.clone().into_env_val(&self.env));
-        args.push(new_admin.clone().into_env_val(&self.env));
+        let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_val(&self.env));
+        args.push(new_admin.clone().into_val(&self.env));
         let msg = Message::V0(MessageV0 {
             function: Symbol::from_str("set_admin"),
             contrct_id: self.contract_id.clone(),
             network_id: self.env.ledger().network_passphrase(),
-            parameters: args,
+            args,
         });
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+        let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });
@@ -228,16 +226,16 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<EnvVal> = Vec::new(&self.env);
-        args.push(nonce.clone().into_env_val(&self.env));
-        args.push(id.clone().into_env_val(&self.env));
+        let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(nonce.clone().into_val(&self.env));
+        args.push(id.clone().into_val(&self.env));
         let msg = Message::V0(MessageV0 {
             function: Symbol::from_str("unfreeze"),
             contrct_id: self.contract_id.clone(),
             network_id: self.env.ledger().network_passphrase(),
-            parameters: args,
+            args,
         });
-        let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+        let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });

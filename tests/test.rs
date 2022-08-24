@@ -1,7 +1,7 @@
 use ed25519_dalek::Keypair;
 use rand::{thread_rng, RngCore};
-use soroban_authorization_contract::public_types::{KeyedAuthorization, KeyedEd25519Signature};
 use soroban_sdk::{BigInt, BytesN, Env, IntoVal};
+use soroban_sdk_auth::public_types::{Ed25519Signature, Signature};
 use soroban_token_contract::testutils::{
     register_test_contract as register_token, to_ed25519, Token,
 };
@@ -218,12 +218,12 @@ fn set_admin_bad_signature() {
     let mut signature = [0u8; 64];
     thread_rng().fill_bytes(&mut signature);
 
-    let auth = KeyedAuthorization::Ed25519(KeyedEd25519Signature {
+    let auth = Signature::Ed25519(Ed25519Signature {
         public_key: admin1.public.to_bytes().into_val(&e),
         signature: signature.into_val(&e),
     });
 
-    let contract_id_bin = BytesN::from_array(&e, contract_id);
+    let contract_id_bin = BytesN::from_array(&e, &contract_id);
     let nonce = soroban_token_contract::nonce(&e, &contract_id_bin, &admin1_id);
     soroban_token_contract::set_admin(&e, &contract_id_bin, &auth, &nonce, &admin2_id);
 }
