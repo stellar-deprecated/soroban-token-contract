@@ -6,7 +6,7 @@ use crate::metadata::{
     read_decimal, read_name, read_symbol, write_decimal, write_name, write_symbol,
 };
 use crate::storage_types::DataKey;
-use soroban_sdk::{contractimpl, vec, BigInt, Bytes, Env, IntoVal, Symbol};
+use soroban_sdk::{contractimpl, symbol, vec, BigInt, Bytes, Env, IntoVal};
 use soroban_sdk_auth::public_types::{Identifier, Signature};
 use soroban_sdk_auth::{check_auth, NonceAuth};
 
@@ -106,7 +106,7 @@ impl TokenTrait for Token {
             &e,
             &WrappedAuth(from),
             nonce.clone(),
-            Symbol::from_str("approve"),
+            symbol!("approve"),
             vec![
                 &e,
                 nonce.into_val(&e),
@@ -131,7 +131,7 @@ impl TokenTrait for Token {
             &e,
             &WrappedAuth(from),
             nonce.clone(),
-            Symbol::from_str("xfer"),
+            symbol!("xfer"),
             vec![
                 &e,
                 nonce.into_val(&e),
@@ -156,7 +156,7 @@ impl TokenTrait for Token {
             &e,
             &WrappedAuth(spender),
             nonce.clone(),
-            Symbol::from_str("xfer_from"),
+            symbol!("xfer_from"),
             vec![
                 &e,
                 nonce.into_val(&e),
@@ -177,7 +177,7 @@ impl TokenTrait for Token {
             &e,
             &WrappedAuth(admin),
             nonce.clone(),
-            Symbol::from_str("burn"),
+            symbol!("burn"),
             vec![
                 &e,
                 nonce.into_val(&e),
@@ -195,7 +195,7 @@ impl TokenTrait for Token {
             &e,
             &WrappedAuth(admin),
             nonce.clone(),
-            Symbol::from_str("freeze"),
+            symbol!("freeze"),
             vec![&e, nonce.into_val(&e), id.clone().into_val(&e)],
         );
         write_state(&e, id, true);
@@ -208,7 +208,7 @@ impl TokenTrait for Token {
             &e,
             &WrappedAuth(admin),
             nonce.clone(),
-            Symbol::from_str("mint"),
+            symbol!("mint"),
             vec![
                 &e,
                 nonce.into_val(&e),
@@ -226,7 +226,7 @@ impl TokenTrait for Token {
             &e,
             &WrappedAuth(admin),
             nonce.clone(),
-            Symbol::from_str("set_admin"),
+            symbol!("set_admin"),
             vec![&e, nonce.into_val(&e), new_admin.clone().into_val(&e)],
         );
         write_administrator(&e, new_admin);
@@ -239,7 +239,7 @@ impl TokenTrait for Token {
             &e,
             &WrappedAuth(admin),
             nonce.clone(),
-            Symbol::from_str("unfreeze"),
+            symbol!("unfreeze"),
             vec![&e, nonce.into_val(&e), id.clone().into_val(&e)],
         );
         write_state(&e, id, false);
