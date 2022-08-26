@@ -5,6 +5,7 @@ use soroban_sdk_auth::public_types::{Ed25519Signature, Signature};
 use soroban_token_contract::testutils::{
     register_test_contract as register_token, to_ed25519, Token,
 };
+use soroban_token_contract::TokenClient;
 
 fn generate_contract_id() -> [u8; 32] {
     let mut id: [u8; 32] = Default::default();
@@ -224,8 +225,10 @@ fn set_admin_bad_signature() {
     });
 
     let contract_id_bin = BytesN::from_array(&e, &contract_id);
-    let nonce = soroban_token_contract::nonce(&e, &contract_id_bin, &admin1_id);
-    soroban_token_contract::set_admin(&e, &contract_id_bin, &auth, &nonce, &admin2_id);
+
+    let client = TokenClient::new(&e, &contract_id_bin);
+    let nonce = client.nonce(admin1_id);
+    client.set_admin(auth, nonce, admin2_id);
 }
 
 #[test]

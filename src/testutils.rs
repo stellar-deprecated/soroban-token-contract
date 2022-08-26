@@ -1,6 +1,6 @@
 #![cfg(feature = "testutils")]
 
-use crate::*;
+use crate::contract::TokenClient;
 use ed25519_dalek::Keypair;
 use soroban_sdk::testutils::ed25519::Sign;
 use soroban_sdk::{symbol, BigInt, Bytes, BytesN, Env, IntoVal, RawVal, Vec};
@@ -31,22 +31,20 @@ impl Token {
     pub fn initialize(&self, admin: &Identifier, decimals: u32, name: &str, symbol: &str) {
         let name: Bytes = name.into_val(&self.env);
         let symbol: Bytes = symbol.into_val(&self.env);
-        initialize(
-            &self.env,
-            &self.contract_id,
-            admin,
-            &decimals,
-            &name,
-            &symbol,
-        )
+        TokenClient::new(&self.env, &self.contract_id).initialize(
+            admin.clone(),
+            decimals,
+            name,
+            symbol,
+        );
     }
 
     pub fn nonce(&self, id: &Identifier) -> BigInt {
-        nonce(&self.env, &self.contract_id, id)
+        TokenClient::new(&self.env, &self.contract_id).nonce(id.clone())
     }
 
     pub fn allowance(&self, from: &Identifier, spender: &Identifier) -> BigInt {
-        allowance(&self.env, &self.contract_id, from, spender)
+        TokenClient::new(&self.env, &self.contract_id).allowance(from.clone(), spender.clone())
     }
 
     pub fn approve(&self, from: &Keypair, spender: &Identifier, amount: &BigInt) {
@@ -69,15 +67,20 @@ impl Token {
             public_key: from.public.to_bytes().into_val(&self.env),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
-        approve(&self.env, &self.contract_id, &auth, &nonce, spender, amount)
+        TokenClient::new(&self.env, &self.contract_id).approve(
+            auth,
+            nonce,
+            spender.clone(),
+            amount.clone(),
+        )
     }
 
     pub fn balance(&self, id: &Identifier) -> BigInt {
-        balance(&self.env, &self.contract_id, id)
+        TokenClient::new(&self.env, &self.contract_id).balance(id.clone())
     }
 
     pub fn is_frozen(&self, id: &Identifier) -> bool {
-        is_frozen(&self.env, &self.contract_id, id)
+        TokenClient::new(&self.env, &self.contract_id).is_frozen(id.clone())
     }
 
     pub fn xfer(&self, from: &Keypair, to: &Identifier, amount: &BigInt) {
@@ -99,7 +102,8 @@ impl Token {
             public_key: BytesN::from_array(&self.env, &from.public.to_bytes()),
             signature: from.sign(msg).unwrap().into_val(&self.env),
         });
-        xfer(&self.env, &self.contract_id, &auth, &nonce, to, amount)
+
+        TokenClient::new(&self.env, &self.contract_id).xfer(auth, nonce, to.clone(), amount.clone())
     }
 
     pub fn xfer_from(
@@ -129,14 +133,13 @@ impl Token {
             public_key: spender.public.to_bytes().into_val(&self.env),
             signature: spender.sign(msg).unwrap().into_val(&self.env),
         });
-        xfer_from(
-            &self.env,
-            &self.contract_id,
-            &auth,
-            &nonce,
-            from,
-            to,
-            amount,
+
+        TokenClient::new(&self.env, &self.contract_id).xfer_from(
+            auth,
+            nonce,
+            from.clone(),
+            to.clone(),
+            amount.clone(),
         )
     }
 
@@ -158,7 +161,12 @@ impl Token {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });
-        burn(&self.env, &self.contract_id, &auth, &nonce, from, amount)
+        TokenClient::new(&self.env, &self.contract_id).burn(
+            auth,
+            nonce,
+            from.clone(),
+            amount.clone(),
+        )
     }
 
     pub fn freeze(&self, admin: &Keypair, id: &Identifier) {
@@ -178,7 +186,7 @@ impl Token {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });
-        freeze(&self.env, &self.contract_id, &auth, &nonce, id)
+        TokenClient::new(&self.env, &self.contract_id).freeze(auth, nonce, id.clone())
     }
 
     pub fn mint(&self, admin: &Keypair, to: &Identifier, amount: &BigInt) {
@@ -199,7 +207,7 @@ impl Token {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });
-        mint(&self.env, &self.contract_id, &auth, &nonce, to, amount)
+        TokenClient::new(&self.env, &self.contract_id).mint(auth, nonce, to.clone(), amount.clone())
     }
 
     pub fn set_admin(&self, admin: &Keypair, new_admin: &Identifier) {
@@ -219,7 +227,7 @@ impl Token {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });
-        set_admin(&self.env, &self.contract_id, &auth, &nonce, new_admin)
+        TokenClient::new(&self.env, &self.contract_id).set_admin(auth, nonce, new_admin.clone())
     }
 
     pub fn unfreeze(&self, admin: &Keypair, id: &Identifier) {
@@ -239,18 +247,18 @@ impl Token {
             public_key: admin.public.to_bytes().into_val(&self.env),
             signature: admin.sign(msg).unwrap().into_val(&self.env),
         });
-        unfreeze(&self.env, &self.contract_id, &auth, &nonce, id)
+        TokenClient::new(&self.env, &self.contract_id).unfreeze(auth, nonce, id.clone())
     }
 
     pub fn decimals(&self) -> u32 {
-        decimals(&self.env, &self.contract_id)
+        TokenClient::new(&self.env, &self.contract_id).decimals()
     }
 
     pub fn name(&self) -> Bytes {
-        name(&self.env, &self.contract_id)
+        TokenClient::new(&self.env, &self.contract_id).name()
     }
 
     pub fn symbol(&self) -> Bytes {
-        symbol(&self.env, &self.contract_id)
+        TokenClient::new(&self.env, &self.contract_id).symbol()
     }
 }
