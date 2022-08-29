@@ -6,7 +6,7 @@ use crate::metadata::{
     read_decimal, read_name, read_symbol, write_decimal, write_name, write_symbol,
 };
 use crate::storage_types::DataKey;
-use soroban_sdk::{contractimpl, symbol, vec, BigInt, Bytes, Env, IntoVal};
+use soroban_sdk::{contractimpl, symbol, BigInt, Bytes, Env, IntoVal};
 use soroban_sdk_auth::public_types::{Identifier, Signature};
 use soroban_sdk_auth::{check_auth, NonceAuth};
 
@@ -107,13 +107,7 @@ impl TokenTrait for Token {
             &WrappedAuth(from),
             nonce.clone(),
             symbol!("approve"),
-            vec![
-                &e,
-                from_id.clone().into_val(&e),
-                nonce.into_val(&e),
-                spender.clone().into_val(&e),
-                amount.clone().into_val(&e),
-            ],
+            (from_id.clone(), nonce, spender.clone(), amount.clone()).into_val(&e),
         );
         write_allowance(&e, from_id, spender, amount);
     }
@@ -133,13 +127,7 @@ impl TokenTrait for Token {
             &WrappedAuth(from),
             nonce.clone(),
             symbol!("xfer"),
-            vec![
-                &e,
-                from_id.clone().into_val(&e),
-                nonce.into_val(&e),
-                to.clone().into_val(&e),
-                amount.clone().into_val(&e),
-            ],
+            (from_id.clone(), nonce, to.clone(), amount.clone()).into_val(&e),
         );
         spend_balance(&e, from_id, amount.clone());
         receive_balance(&e, to, amount);
@@ -159,14 +147,14 @@ impl TokenTrait for Token {
             &WrappedAuth(spender),
             nonce.clone(),
             symbol!("xfer_from"),
-            vec![
-                &e,
-                spender_id.clone().into_val(&e),
-                nonce.into_val(&e),
-                from.clone().into_val(&e),
-                to.clone().into_val(&e),
-                amount.clone().into_val(&e),
-            ],
+            (
+                spender_id.clone(),
+                nonce,
+                from.clone(),
+                to.clone(),
+                amount.clone(),
+            )
+                .into_val(&e),
         );
         spend_allowance(&e, from.clone(), spender_id, amount.clone());
         spend_balance(&e, from, amount.clone());
@@ -182,13 +170,7 @@ impl TokenTrait for Token {
             &WrappedAuth(admin),
             nonce.clone(),
             symbol!("burn"),
-            vec![
-                &e,
-                admin_id.into_val(&e),
-                nonce.into_val(&e),
-                from.clone().into_val(&e),
-                amount.clone().into_val(&e),
-            ],
+            (admin_id, nonce, from.clone(), amount.clone()).into_val(&e),
         );
         spend_balance(&e, from, amount);
     }
@@ -202,12 +184,7 @@ impl TokenTrait for Token {
             &WrappedAuth(admin),
             nonce.clone(),
             symbol!("freeze"),
-            vec![
-                &e,
-                admin_id.into_val(&e),
-                nonce.into_val(&e),
-                id.clone().into_val(&e),
-            ],
+            (admin_id, nonce, id.clone()).into_val(&e),
         );
         write_state(&e, id, true);
     }
@@ -221,13 +198,7 @@ impl TokenTrait for Token {
             &WrappedAuth(admin),
             nonce.clone(),
             symbol!("mint"),
-            vec![
-                &e,
-                admin_id.into_val(&e),
-                nonce.into_val(&e),
-                to.clone().into_val(&e),
-                amount.clone().into_val(&e),
-            ],
+            (admin_id, nonce, to.clone(), amount.clone()).into_val(&e),
         );
         receive_balance(&e, to, amount);
     }
@@ -241,12 +212,7 @@ impl TokenTrait for Token {
             &WrappedAuth(admin),
             nonce.clone(),
             symbol!("set_admin"),
-            vec![
-                &e,
-                admin_id.into_val(&e),
-                nonce.into_val(&e),
-                new_admin.clone().into_val(&e),
-            ],
+            (admin_id, nonce, new_admin.clone()).into_val(&e),
         );
         write_administrator(&e, new_admin);
     }
@@ -260,12 +226,7 @@ impl TokenTrait for Token {
             &WrappedAuth(admin),
             nonce.clone(),
             symbol!("unfreeze"),
-            vec![
-                &e,
-                admin_id.into_val(&e),
-                nonce.into_val(&e),
-                id.clone().into_val(&e),
-            ],
+            (admin_id, nonce, id.clone()).into_val(&e),
         );
         write_state(&e, id, false);
     }
