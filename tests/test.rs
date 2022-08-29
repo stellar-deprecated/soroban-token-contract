@@ -227,8 +227,8 @@ fn set_admin_bad_signature() {
     let contract_id_bin = BytesN::from_array(&e, &contract_id);
 
     let client = TokenClient::new(&e, &contract_id_bin);
-    let nonce = client.nonce(admin1_id);
-    client.set_admin(auth, nonce, admin2_id);
+    let nonce = client.nonce(&admin1_id);
+    client.set_admin(&auth, &nonce, &admin2_id);
 }
 
 #[test]
