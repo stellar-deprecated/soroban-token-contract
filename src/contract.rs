@@ -109,6 +109,7 @@ impl TokenTrait for Token {
             symbol!("approve"),
             vec![
                 &e,
+                from_id.clone().into_val(&e),
                 nonce.into_val(&e),
                 spender.clone().into_val(&e),
                 amount.clone().into_val(&e),
@@ -134,6 +135,7 @@ impl TokenTrait for Token {
             symbol!("xfer"),
             vec![
                 &e,
+                from_id.clone().into_val(&e),
                 nonce.into_val(&e),
                 to.clone().into_val(&e),
                 amount.clone().into_val(&e),
@@ -159,6 +161,7 @@ impl TokenTrait for Token {
             symbol!("xfer_from"),
             vec![
                 &e,
+                spender_id.clone().into_val(&e),
                 nonce.into_val(&e),
                 from.clone().into_val(&e),
                 to.clone().into_val(&e),
@@ -172,6 +175,7 @@ impl TokenTrait for Token {
 
     fn burn(e: Env, admin: Signature, nonce: BigInt, from: Identifier, amount: BigInt) {
         check_admin(&e, &admin);
+        let admin_id = admin.get_identifier(&e);
 
         check_auth(
             &e,
@@ -180,6 +184,7 @@ impl TokenTrait for Token {
             symbol!("burn"),
             vec![
                 &e,
+                admin_id.into_val(&e),
                 nonce.into_val(&e),
                 from.clone().into_val(&e),
                 amount.clone().into_val(&e),
@@ -190,19 +195,26 @@ impl TokenTrait for Token {
 
     fn freeze(e: Env, admin: Signature, nonce: BigInt, id: Identifier) {
         check_admin(&e, &admin);
+        let admin_id = admin.get_identifier(&e);
 
         check_auth(
             &e,
             &WrappedAuth(admin),
             nonce.clone(),
             symbol!("freeze"),
-            vec![&e, nonce.into_val(&e), id.clone().into_val(&e)],
+            vec![
+                &e,
+                admin_id.into_val(&e),
+                nonce.into_val(&e),
+                id.clone().into_val(&e),
+            ],
         );
         write_state(&e, id, true);
     }
 
     fn mint(e: Env, admin: Signature, nonce: BigInt, to: Identifier, amount: BigInt) {
         check_admin(&e, &admin);
+        let admin_id = admin.get_identifier(&e);
 
         check_auth(
             &e,
@@ -211,6 +223,7 @@ impl TokenTrait for Token {
             symbol!("mint"),
             vec![
                 &e,
+                admin_id.into_val(&e),
                 nonce.into_val(&e),
                 to.clone().into_val(&e),
                 amount.clone().into_val(&e),
@@ -221,26 +234,38 @@ impl TokenTrait for Token {
 
     fn set_admin(e: Env, admin: Signature, nonce: BigInt, new_admin: Identifier) {
         check_admin(&e, &admin);
+        let admin_id = admin.get_identifier(&e);
 
         check_auth(
             &e,
             &WrappedAuth(admin),
             nonce.clone(),
             symbol!("set_admin"),
-            vec![&e, nonce.into_val(&e), new_admin.clone().into_val(&e)],
+            vec![
+                &e,
+                admin_id.into_val(&e),
+                nonce.into_val(&e),
+                new_admin.clone().into_val(&e),
+            ],
         );
         write_administrator(&e, new_admin);
     }
 
     fn unfreeze(e: Env, admin: Signature, nonce: BigInt, id: Identifier) {
         check_admin(&e, &admin);
+        let admin_id = admin.get_identifier(&e);
 
         check_auth(
             &e,
             &WrappedAuth(admin),
             nonce.clone(),
             symbol!("unfreeze"),
-            vec![&e, nonce.into_val(&e), id.clone().into_val(&e)],
+            vec![
+                &e,
+                admin_id.into_val(&e),
+                nonce.into_val(&e),
+                id.clone().into_val(&e),
+            ],
         );
         write_state(&e, id, false);
     }

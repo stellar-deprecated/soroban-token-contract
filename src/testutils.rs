@@ -50,6 +50,7 @@ impl Token {
         let nonce = self.nonce(&from_id);
 
         let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(from_id.clone().into_val(&self.env));
         args.push(nonce.clone().into_val(&self.env));
         args.push(spender.clone().into_val(&self.env));
         args.push(amount.clone().into_val(&self.env));
@@ -81,6 +82,7 @@ impl Token {
         let nonce = self.nonce(&from_id);
 
         let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(from_id.clone().into_val(&self.env));
         args.push(nonce.clone().into_val(&self.env));
         args.push(to.clone().into_val(&self.env));
         args.push(amount.clone().into_val(&self.env));
@@ -110,6 +112,7 @@ impl Token {
         let nonce = self.nonce(&spender_id);
 
         let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(spender_id.clone().into_val(&self.env));
         args.push(nonce.clone().into_val(&self.env));
         args.push(from.clone().into_val(&self.env));
         args.push(to.clone().into_val(&self.env));
@@ -135,6 +138,7 @@ impl Token {
         let nonce = self.nonce(&admin_id);
 
         let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(admin_id.clone().into_val(&self.env));
         args.push(nonce.clone().into_val(&self.env));
         args.push(from.clone().into_val(&self.env));
         args.push(amount.clone().into_val(&self.env));
@@ -156,6 +160,7 @@ impl Token {
         let nonce = self.nonce(&admin_id);
 
         let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(admin_id.clone().into_val(&self.env));
         args.push(nonce.clone().into_val(&self.env));
         args.push(id.clone().into_val(&self.env));
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
@@ -176,6 +181,7 @@ impl Token {
         let nonce = self.nonce(&admin_id);
 
         let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(admin_id.clone().into_val(&self.env));
         args.push(nonce.clone().into_val(&self.env));
         args.push(to.clone().into_val(&self.env));
         args.push(amount.clone().into_val(&self.env));
@@ -197,6 +203,7 @@ impl Token {
         let nonce = self.nonce(&admin_id);
 
         let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(admin_id.clone().into_val(&self.env));
         args.push(nonce.clone().into_val(&self.env));
         args.push(new_admin.clone().into_val(&self.env));
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
@@ -217,6 +224,7 @@ impl Token {
         let nonce = self.nonce(&admin_id);
 
         let mut args: Vec<RawVal> = Vec::new(&self.env);
+        args.push(admin_id.clone().into_val(&self.env));
         args.push(nonce.clone().into_val(&self.env));
         args.push(id.clone().into_val(&self.env));
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
