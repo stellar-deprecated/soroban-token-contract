@@ -28,9 +28,9 @@ soroban-token-contract = { path = ".", features = ["export", "testutils"] }
 rand = { version = "0.7.3" }
 
 [patch.crates-io]
-soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "2c93d3cf" }
-soroban-sdk-auth = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "2c93d3cf" }
-soroban-sdk-macros = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "2c93d3cf" }
+soroban-sdk = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "499c1013" }
+soroban-sdk-auth = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "499c1013" }
+soroban-sdk-macros = { git = "https://github.com/stellar/rs-soroban-sdk", rev = "499c1013" }
 soroban-env-common = { git = "https://github.com/stellar/rs-soroban-env", rev = "16fcb333" }
 soroban-env-guest = { git = "https://github.com/stellar/rs-soroban-env", rev = "16fcb333" }
 soroban-env-host = { git = "https://github.com/stellar/rs-soroban-env", rev = "16fcb333" }
