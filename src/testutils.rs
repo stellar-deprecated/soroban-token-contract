@@ -3,7 +3,7 @@
 use crate::contract::TokenClient;
 use ed25519_dalek::Keypair;
 use soroban_sdk::testutils::ed25519::Sign;
-use soroban_sdk::{symbol, BigInt, Bytes, BytesN, Env, IntoVal, RawVal, Vec};
+use soroban_sdk::{symbol, BigInt, Bytes, BytesN, Env, IntoVal};
 use soroban_sdk_auth::{
     Ed25519Signature, Identifier, Signature, SignaturePayload, SignaturePayloadV0,
 };
@@ -49,17 +49,11 @@ impl Token {
         let from_id = to_ed25519(&self.env, from);
         let nonce = self.nonce(&from_id);
 
-        let mut args: Vec<RawVal> = Vec::new(&self.env);
-        args.push_back(from_id.clone().into_val(&self.env));
-        args.push_back(nonce.clone().into_val(&self.env));
-        args.push_back(spender.clone().into_val(&self.env));
-        args.push_back(amount.clone().into_val(&self.env));
-
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
             function: symbol!("approve"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args,
+            args: (from_id, &nonce, spender, amount).into_val(&self.env),
         });
 
         let auth = Signature::Ed25519(Ed25519Signature {
@@ -85,7 +79,7 @@ impl Token {
             function: symbol!("xfer"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (from_id.clone(), nonce.clone(), to.clone(), amount.clone()).into_val(&self.env),
+            args: (from_id, &nonce, to, amount).into_val(&self.env),
         });
 
         let auth = Signature::Ed25519(Ed25519Signature {
@@ -110,14 +104,7 @@ impl Token {
             function: symbol!("xfer_from"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (
-                spender_id.clone(),
-                nonce.clone(),
-                from.clone(),
-                to.clone(),
-                amount.clone(),
-            )
-                .into_val(&self.env),
+            args: (spender_id, &nonce, from, to, amount).into_val(&self.env),
         });
 
         let auth = Signature::Ed25519(Ed25519Signature {
@@ -136,13 +123,7 @@ impl Token {
             function: symbol!("burn"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (
-                admin_id.clone(),
-                nonce.clone(),
-                from.clone(),
-                amount.clone(),
-            )
-                .into_val(&self.env),
+            args: (admin_id, &nonce, from, amount).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -159,7 +140,7 @@ impl Token {
             function: symbol!("freeze"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (admin_id.clone(), nonce.clone(), id.clone()).into_val(&self.env),
+            args: (admin_id, &nonce, id).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -172,16 +153,11 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<RawVal> = Vec::new(&self.env);
-        args.push_back(admin_id.clone().into_val(&self.env));
-        args.push_back(nonce.clone().into_val(&self.env));
-        args.push_back(to.clone().into_val(&self.env));
-        args.push_back(amount.clone().into_val(&self.env));
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
             function: symbol!("mint"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (admin_id.clone(), nonce.clone(), to.clone(), amount.clone()).into_val(&self.env),
+            args: (admin_id, &nonce, to, amount).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -198,7 +174,7 @@ impl Token {
             function: symbol!("set_admin"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (admin_id.clone(), nonce.clone(), new_admin.clone()).into_val(&self.env),
+            args: (admin_id, &nonce, new_admin).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -215,7 +191,7 @@ impl Token {
             function: symbol!("unfreeze"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (admin_id.clone(), nonce.clone(), id.clone()).into_val(&self.env),
+            args: (admin_id, &nonce, id).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
