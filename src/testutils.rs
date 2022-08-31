@@ -53,13 +53,7 @@ impl Token {
             function: symbol!("approve"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (
-                from_id.clone(),
-                nonce.clone(),
-                spender.clone(),
-                amount.clone(),
-            )
-                .into_val(&self.env),
+            args: (from_id, &nonce, spender, amount).into_val(&self.env),
         });
 
         let auth = Signature::Ed25519(Ed25519Signature {
@@ -85,7 +79,7 @@ impl Token {
             function: symbol!("xfer"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (from_id.clone(), nonce.clone(), to.clone(), amount.clone()).into_val(&self.env),
+            args: (from_id, &nonce, to, amount).into_val(&self.env),
         });
 
         let auth = Signature::Ed25519(Ed25519Signature {
@@ -110,14 +104,7 @@ impl Token {
             function: symbol!("xfer_from"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (
-                spender_id.clone(),
-                nonce.clone(),
-                from.clone(),
-                to.clone(),
-                amount.clone(),
-            )
-                .into_val(&self.env),
+            args: (spender_id, &nonce, from, to, amount).into_val(&self.env),
         });
 
         let auth = Signature::Ed25519(Ed25519Signature {
@@ -136,13 +123,7 @@ impl Token {
             function: symbol!("burn"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (
-                admin_id.clone(),
-                nonce.clone(),
-                from.clone(),
-                amount.clone(),
-            )
-                .into_val(&self.env),
+            args: (admin_id, &nonce, from, amount).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -159,7 +140,7 @@ impl Token {
             function: symbol!("freeze"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (admin_id.clone(), nonce.clone(), id.clone()).into_val(&self.env),
+            args: (admin_id, &nonce, id).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -176,7 +157,7 @@ impl Token {
             function: symbol!("mint"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (admin_id.clone(), nonce.clone(), to.clone(), amount.clone()).into_val(&self.env),
+            args: (admin_id, &nonce, to, amount).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -193,7 +174,7 @@ impl Token {
             function: symbol!("set_admin"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (admin_id.clone(), nonce.clone(), new_admin.clone()).into_val(&self.env),
+            args: (admin_id, &nonce, new_admin).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -210,7 +191,7 @@ impl Token {
             function: symbol!("unfreeze"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args: (admin_id.clone(), nonce.clone(), id.clone()).into_val(&self.env),
+            args: (admin_id, &nonce, id).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
