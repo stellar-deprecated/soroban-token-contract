@@ -81,16 +81,11 @@ impl Token {
         let from_id = to_ed25519(&self.env, from);
         let nonce = self.nonce(&from_id);
 
-        let mut args: Vec<RawVal> = Vec::new(&self.env);
-        args.push_back(from_id.clone().into_val(&self.env));
-        args.push_back(nonce.clone().into_val(&self.env));
-        args.push_back(to.clone().into_val(&self.env));
-        args.push_back(amount.clone().into_val(&self.env));
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
             function: symbol!("xfer"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args,
+            args: (from_id.clone(), nonce.clone(), to.clone(), amount.clone()).into_val(&self.env),
         });
 
         let auth = Signature::Ed25519(Ed25519Signature {
@@ -111,18 +106,18 @@ impl Token {
         let spender_id = to_ed25519(&self.env, spender);
         let nonce = self.nonce(&spender_id);
 
-        let mut args: Vec<RawVal> = Vec::new(&self.env);
-        args.push_back(spender_id.clone().into_val(&self.env));
-        args.push_back(nonce.clone().into_val(&self.env));
-        args.push_back(from.clone().into_val(&self.env));
-        args.push_back(to.clone().into_val(&self.env));
-        args.push_back(amount.clone().into_val(&self.env));
-
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
             function: symbol!("xfer_from"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args,
+            args: (
+                spender_id.clone(),
+                nonce.clone(),
+                from.clone(),
+                to.clone(),
+                amount.clone(),
+            )
+                .into_val(&self.env),
         });
 
         let auth = Signature::Ed25519(Ed25519Signature {
@@ -137,16 +132,17 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<RawVal> = Vec::new(&self.env);
-        args.push_back(admin_id.clone().into_val(&self.env));
-        args.push_back(nonce.clone().into_val(&self.env));
-        args.push_back(from.clone().into_val(&self.env));
-        args.push_back(amount.clone().into_val(&self.env));
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
             function: symbol!("burn"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args,
+            args: (
+                admin_id.clone(),
+                nonce.clone(),
+                from.clone(),
+                amount.clone(),
+            )
+                .into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -159,15 +155,11 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<RawVal> = Vec::new(&self.env);
-        args.push_back(admin_id.clone().into_val(&self.env));
-        args.push_back(nonce.clone().into_val(&self.env));
-        args.push_back(id.clone().into_val(&self.env));
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
             function: symbol!("freeze"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args,
+            args: (admin_id.clone(), nonce.clone(), id.clone()).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -189,7 +181,7 @@ impl Token {
             function: symbol!("mint"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args,
+            args: (admin_id.clone(), nonce.clone(), to.clone(), amount.clone()).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -202,15 +194,11 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<RawVal> = Vec::new(&self.env);
-        args.push_back(admin_id.clone().into_val(&self.env));
-        args.push_back(nonce.clone().into_val(&self.env));
-        args.push_back(new_admin.clone().into_val(&self.env));
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
             function: symbol!("set_admin"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args,
+            args: (admin_id.clone(), nonce.clone(), new_admin.clone()).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
@@ -223,15 +211,11 @@ impl Token {
         let admin_id = to_ed25519(&self.env, admin);
         let nonce = self.nonce(&admin_id);
 
-        let mut args: Vec<RawVal> = Vec::new(&self.env);
-        args.push_back(admin_id.clone().into_val(&self.env));
-        args.push_back(nonce.clone().into_val(&self.env));
-        args.push_back(id.clone().into_val(&self.env));
         let msg = SignaturePayload::V0(SignaturePayloadV0 {
             function: symbol!("unfreeze"),
             contract: self.contract_id.clone(),
             network: self.env.ledger().network_passphrase(),
-            args,
+            args: (admin_id.clone(), nonce.clone(), id.clone()).into_val(&self.env),
         });
         let auth = Signature::Ed25519(Ed25519Signature {
             public_key: admin.public.to_bytes().into_val(&self.env),
