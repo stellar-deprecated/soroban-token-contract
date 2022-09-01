@@ -1,5 +1,5 @@
 use soroban_sdk::contracttype;
-use soroban_sdk_auth::Identifier;
+use soroban_auth::Identifier;
 
 #[derive(Clone)]
 #[contracttype]

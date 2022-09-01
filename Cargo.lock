@@ -665,7 +665,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "soroban-sdk-auth"
+name = "soroban-auth"
 version = "0.0.0"
 source = "git+https://github.com/stellar/rs-soroban-sdk?rev=5dc90214#5dc902149ed3f76abb81fcc6032f46853f37e5dc"
 dependencies = [
@@ -717,7 +717,7 @@ dependencies = [
  "num-bigint",
  "rand",
  "soroban-sdk",
- "soroban-sdk-auth",
+ "soroban-auth",
  "soroban-token-contract",
 ]
 

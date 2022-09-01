@@ -1,6 +1,6 @@
 use crate::storage_types::{AllowanceDataKey, DataKey};
 use soroban_sdk::{BigInt, Env};
-use soroban_sdk_auth::Identifier;
+use soroban_auth::Identifier;
 
 pub fn read_allowance(e: &Env, from: Identifier, spender: Identifier) -> BigInt {
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });
