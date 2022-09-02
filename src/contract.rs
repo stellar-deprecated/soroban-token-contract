@@ -6,9 +6,9 @@ use crate::metadata::{
     read_decimal, read_name, read_symbol, write_decimal, write_name, write_symbol,
 };
 use crate::storage_types::DataKey;
+use soroban_auth::{check_auth, NonceAuth};
+use soroban_auth::{Identifier, Signature};
 use soroban_sdk::{contractimpl, symbol, BigInt, Bytes, Env, IntoVal};
-use soroban_sdk_auth::{check_auth, NonceAuth};
-use soroban_sdk_auth::{Identifier, Signature};
 
 pub trait TokenTrait {
     fn initialize(e: Env, admin: Identifier, decimal: u32, name: Bytes, symbol: Bytes);

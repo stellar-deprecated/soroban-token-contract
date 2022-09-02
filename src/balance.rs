@@ -1,6 +1,6 @@
 use crate::storage_types::DataKey;
+use soroban_auth::Identifier;
 use soroban_sdk::{BigInt, Env};
-use soroban_sdk_auth::Identifier;
 
 pub fn read_balance(e: &Env, id: Identifier) -> BigInt {
     let key = DataKey::Balance(id);

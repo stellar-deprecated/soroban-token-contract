@@ -1,6 +1,6 @@
 use crate::storage_types::DataKey;
+use soroban_auth::{Identifier, Signature};
 use soroban_sdk::Env;
-use soroban_sdk_auth::{Identifier, Signature};
 
 pub fn has_administrator(e: &Env) -> bool {
     let key = DataKey::Admin;
