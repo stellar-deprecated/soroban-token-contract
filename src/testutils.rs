@@ -2,11 +2,9 @@
 
 use crate::contract::TokenClient;
 use ed25519_dalek::Keypair;
+use soroban_auth::{Ed25519Signature, Identifier, Signature, SignaturePayload, SignaturePayloadV0};
 use soroban_sdk::testutils::ed25519::Sign;
 use soroban_sdk::{symbol, BigInt, Bytes, BytesN, Env, IntoVal};
-use soroban_auth::{
-    Ed25519Signature, Identifier, Signature, SignaturePayload, SignaturePayloadV0,
-};
 
 pub fn register_test_contract(e: &Env, contract_id: &[u8; 32]) {
     let contract_id = BytesN::from_array(e, contract_id);
