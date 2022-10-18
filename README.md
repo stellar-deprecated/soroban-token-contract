@@ -1,7 +1,5 @@
 # soroban-token-contract
 
-[Standard token implementation](https://soroban.stellar.org/docs/standard-contracts/token-contract/) for Soroban
+**The code in this repository is deprecated.**
 
-WARNING: This implementation has not been tested or audited. It is likely to
-have significant errors and security vulnerabilities. It should not be relied
-on for any purpose.
+For more information about the Soroban built-in token contract, see https://soroban.stellar.org/docs/built-in-contracts/token.
